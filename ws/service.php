@@ -66,7 +66,10 @@ switch ($accion) {
         $values = array();
         foreach ($data as $key) {
             $sucursal = json_decode($mono->select_one("sucursales", array("id" => $key->id_sucursal)));
-            $key->sucursal = $sucursal->sucursal;
+            if (empty($sucursal) || is_null($sucursal)) {
+            } else {
+                $key->sucursal = $sucursal->sucursal;
+            }
             unset($key->pass);
             $values[] = $key;
         }
