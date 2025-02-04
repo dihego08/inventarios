@@ -1,5 +1,4 @@
 <?php
-//include_once('../db/env.php');
 class Monodon
 {
     protected $obj;
