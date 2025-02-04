@@ -39,14 +39,32 @@ $(document).ready(function () {
             codigos_carro: codigos_carro,
             cantidades: cantidades,
             precios: precios,
-            id_cliente: $("#id_sucursal").val(),
+            id_cliente: $("#id_cliente").val(),
             id_forma_pago: $("#id_forma_pago").val(),
-            id_sucursal: 2
+            id_sucursal: 2,
+            monto: $("#total").val()
         }, function (response) {
             var obj = JSON.parse(response);
+
+            if (obj.Result == "OK") {
+                alertify.success("Venta Registrada Correctamente.");
+                limpiar_formulario();
+            } else {
+                alertify.error("Algo ha salido terriblemente mal.");
+            }
         });
     });
 });
+function limpiar_formulario() {
+    $(".form-control").val('');
+    $("select").val(0);
+    $('.item-carrito').remove();
+    $(".order-empty").show();
+    codigos_carro = [];
+    cantidades = [];
+    precios = [];
+    calcularTodo();
+}
 function lista_formas_pagos() {
     $.post("ws/service.php?parAccion=lista_formas_pagos", {
         id_sucursal: 2
@@ -130,7 +148,7 @@ function anadirItem(id, nombre, precio) {
 
         $(".order-empty").hide();
         $("#div_lista_ventas").append(`
-            <div id="item${id}" class="row" style="color: #555555; background: rgba(140,143,183,0.2); border-bottom: solid 1px #313131;">
+            <div id="item${id}" class="row item-carrito" style="color: #555555; background: rgba(140,143,183,0.2); border-bottom: solid 1px #313131;">
                 <table class="table mb-0">
                     <tr>
                         <td width="10%">
@@ -193,7 +211,7 @@ function anadirItem(id, nombre, precio) {
 function calcularTodo() {
     var total = 0;
     for (var i = 0; i < codigos_carro.length; i++) {
-        total += parseFloat($("#precio" + codigos_carro[i]).html());
+        total += parseFloat($("#precio" + codigos_carro[i]).html() || 0);
     }
     total = redondear(total, 2);
     var sub_total = redondear(total / 1.18);

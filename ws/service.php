@@ -2,6 +2,7 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+date_default_timezone_set('America/Lima');
 include('../env/Monodon.php');
 $mono = new Monodon();
 $con = $mono->getConnection();
@@ -195,6 +196,60 @@ switch ($accion) {
 
     case 'lista_formas_pagos':
         echo $mono->select_all("formas_pagos", true);
+        break;
+
+    case 'guardar_venta':
+        $_POST['id_usuario_creacion'] = null;
+        $_POST['id_usuario_modificacion'] = 1;
+        $_POST['fecha_modificacion'] = null;
+        $_POST['fecha_creacion'] = null;
+        $_POST['estado'] = 0;
+
+        $res = json_decode($mono->insert_data("ventas", $_POST, false));
+        $LID = $res->LID;
+        $codigos_carro = $_POST['codigos_carro'];
+        $cantidades = $_POST['cantidades'];
+        $precios = $_POST['precios'];
+
+        foreach ($codigos_carro as $i => $codigo) {
+            $data = [
+                'id_venta' => $LID,
+                'id_producto' => $codigo,
+                'precio_unitario' => $precios[$i],
+                'cantidad' => $cantidades[$i],
+                'total' => $precios[$i] * $cantidades[$i],
+                'id_usuario_creacion' => 1,
+                'id_usuario_modificacion' => null,
+                'fecha_modificacion' => null,
+                'fecha_creacion' => null,
+            ];
+
+            $r1 = $mono->insert_data("venta_detalle", $data, false);
+
+            $data_movimientos = $data;
+            $data_movimientos['tipo'] = 1;
+            $data_movimientos['id_sucursal'] = $_POST['id_sucursal'];
+            $data_movimientos['id_cliente'] = $_POST['id_cliente'];
+
+            $r2 = $mono->insert_data("movimientos", $data_movimientos, false);
+
+            $sql = "UPDATE producto_sucursal SET stock = stock - 1, id_usuario_modificacion = " . $_POST['id_usuario_modificacion'] . ", fecha_modificacion = '" . date("Y-m-d H:i:s") . "' WHERE id_producto = " . $codigo . " AND id_sucursal = " . $_POST['id_sucursal'];
+            $mono->executor($sql, "update");
+        }
+
+        echo json_encode(array("Result" => "OK"));
+        break;
+    case 'lista_ventas':
+        $sql = "SELECT v.*, c.nombres, s.sucursal, DATE(v.fecha_creacion) as fecha FROM ventas AS v LEFT JOIN clientes AS c ON c.id = v.id_cliente LEFT JOIN sucursales AS s ON s.id = v.id_sucursal WHERE v.estado = 0";
+        echo $mono->run_query($sql);
+        break;
+    case 'eliminar_venta':
+        $sql = "UPDATE ventas SET estado = 1 WHERE id = " . $_POST['id'];
+        echo $mono->executor($sql, "update");
+        break;
+    case 'detalle_venta':
+        $sql = "SELECT p.producto, v.* FROM venta_detalle AS v JOIN productos AS p ON p.id = v.id_producto AND v.id_venta = " . $_POST['id'];
+        echo $mono->run_query($sql);
         break;
     default:
         # code...
