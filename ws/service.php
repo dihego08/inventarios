@@ -1,9 +1,13 @@
 <?php
+
+use Shuchkin\SimpleXLSX;
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 date_default_timezone_set('America/Lima');
 include('../env/Monodon.php');
+require __DIR__ . '/simplexlsx/src/SimpleXLSX.php';
 $mono = new Monodon();
 $con = $mono->getConnection();
 $accion = $_GET['parAccion'];
@@ -236,7 +240,7 @@ switch ($accion) {
 
             $r2 = $mono->insert_data("movimientos", $data_movimientos, false);
 
-            $sql = "UPDATE producto_sucursal SET stock = stock - 1, id_usuario_modificacion = " . $_POST['id_usuario_modificacion'] . ", fecha_modificacion = '" . date("Y-m-d H:i:s") . "' WHERE id_producto = " . $codigo . " AND id_sucursal = " . $_POST['id_sucursal'];
+            $sql = "UPDATE producto_sucursal SET stock = stock - " . $cantidades[$i] . ", id_usuario_modificacion = " . $_POST['id_usuario_modificacion'] . ", fecha_modificacion = '" . date("Y-m-d H:i:s") . "' WHERE id_producto = " . $codigo . " AND id_sucursal = " . $_POST['id_sucursal'];
             $mono->executor($sql, "update");
         }
 
@@ -253,6 +257,92 @@ switch ($accion) {
     case 'detalle_venta':
         $sql = "SELECT p.producto, v.* FROM venta_detalle AS v JOIN productos AS p ON p.id = v.id_producto AND v.id_venta = " . $_POST['id'];
         echo $mono->run_query($sql);
+        break;
+
+
+    case 'cargar_archivo':
+        $fileName = $_FILES["archivo"]["name"];
+        $fileTmpLoc = $_FILES["archivo"]["tmp_name"];
+        $fileType = $_FILES["archivo"]["type"];
+        $fileSize = $_FILES["archivo"]["size"];
+        $fileErrorMsg = $_FILES["archivo"]["error"];
+
+        if (!$fileTmpLoc) {
+        }
+        if (move_uploaded_file($fileTmpLoc, "temp/$fileName")) {
+            $excel = $fileName;
+        } else {
+            echo json_encode(array("Result" => "ERROR", "ERROR" => "No se pudo cargar el archivo"));
+            return;
+        }
+
+        if ($xlsx = SimpleXLSX::parse('temp/' . $excel)) {
+            echo json_encode(array("Result" => "OK", "data" => $xlsx->rows()));
+        } else {
+            echo json_encode(array("Result" => "ERROR", "ERROR" => SimpleXLSX::parseError()));
+        }
+        break;
+    case "guardar_abastecimiento":
+        $fileName = $_FILES["archivo"]["name"];
+        $fileTmpLoc = $_FILES["archivo"]["tmp_name"];
+        $fileType = $_FILES["archivo"]["type"];
+        $fileSize = $_FILES["archivo"]["size"];
+        $fileErrorMsg = $_FILES["archivo"]["error"];
+
+        if (!$fileTmpLoc) {
+        }
+        if (move_uploaded_file($fileTmpLoc, "temp/$fileName")) {
+            $excel = $fileName;
+        } else {
+            echo json_encode(array("Result" => "ERROR", "ERROR" => "No se pudo cargar el archivo"));
+            return;
+        }
+
+        if ($xlsx = SimpleXLSX::parse('temp/' . $excel)) {
+            $data = $xlsx->rows();
+            $aux = 0;
+            foreach ($data as $i) {
+                if ($aux > 0) {
+                    $data_movimientos['tipo'] = 0;
+                    $data_movimientos['id_producto'] = $i[0];
+                    $data_movimientos['cantidad'] = $i[2];
+                    $data_movimientos['precio_unitario'] = $i[3];
+                    $data_movimientos['id_sucursal'] = $_POST['id_sucursal'];
+                    $data_movimientos['id_cliente'] = null;
+                    $data_movimientos['id_usuario_creacion'] = 1;
+                    $data_movimientos['fecha_creacion'] = null;
+                    $data_movimientos['id_usuario_modificacion'] = null;
+                    $data_movimientos['fecha_modificacion'] = null;
+
+                    $r2 = $mono->insert_data("movimientos", $data_movimientos, false);
+
+                    $existe = json_decode($mono->select_one("producto_sucursal", array("id_producto" => $i[0], "id_sucursal" => $_POST['id_sucursal'])));
+                    if (empty($existe) || is_null($existe)) {
+
+                        $dd['id_producto'] = $i[0];
+                        $dd['stock'] = $i[2];
+                        $dd['id_sucursal'] = $_POST['id_sucursal'];
+                        $dd['precio_unitario'] = $i[3];
+                        $dd['id_usuario_creacion'] = $data_movimientos['id_usuario_creacion'];
+                        $dd['fecha_creacion'] = $data_movimientos['fecha_creacion'];
+                        $dd['id_usuario_modificacion'] = $data_movimientos['id_usuario_modificacion'];
+                        $dd['fecha_modificacion'] = $data_movimientos['fecha_modificacion'];
+                        $r3 = $mono->insert_data("producto_sucursal", $dd, false);
+                    } else {
+                        $sql = "UPDATE producto_sucursal SET stock = stock + " . $i[2] . ", id_usuario_modificacion = " . $data_movimientos['id_usuario_creacion'] . ", fecha_modificacion = '" . date("Y-m-d H:i:s") . "' WHERE id_producto = " . $i[0] . " AND id_sucursal = " . $_POST['id_sucursal'];
+                        $mono->executor($sql, "update");
+                    }
+
+                    /*********************************** */
+                    /*$sql = "UPDATE producto_sucursal SET stock = stock - 1, id_usuario_modificacion = " . $_POST['id_usuario_modificacion'] . ", fecha_modificacion = '" . date("Y-m-d H:i:s") . "' WHERE id_producto = " . $codigo . " AND id_sucursal = " . $_POST['id_sucursal'];
+                    $mono->executor($sql, "update");*/
+                }
+                $aux++;
+            }
+            echo json_encode(array("Result" => "OK", "data" => []));            
+        } else {
+            echo json_encode(array("Result" => "ERROR", "ERROR" => SimpleXLSX::parseError()));
+        }
         break;
     default:
         # code...

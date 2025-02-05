@@ -57,15 +57,15 @@
             </div>
 
             <!-- Nav Item - Pages Collapse Menu -->
-            <li class="nav-item active">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages"
-                    aria-expanded="true" aria-controls="collapsePages">
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapsePages" aria-expanded="true"
+                    aria-controls="collapsePages">
                     <i class="fas fa-fw fa-folder"></i>
                     <span>Control</span>
                 </a>
-                <div id="collapsePages" class="collapse show" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+                <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item active" href="sucursales.html">Sucursales</a>
+                        <a class="collapse-item" href="sucursales.html">Sucursales</a>
                         <a class="collapse-item" href="usuarios.html">Usuarios</a>
                         <a class="collapse-item" href="clientes.html">Clientes</a>
                         <a class="collapse-item" href="productos.html">Productos</a>
@@ -84,8 +84,8 @@
 
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
-                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapsePOS"
-                    aria-expanded="true" aria-controls="collapsePOS">
+                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapsePOS" aria-expanded="true"
+                    aria-controls="collapsePOS">
                     <i class="fas fa-fw fa-folder"></i>
                     <span>Ventas</span>
                 </a>
@@ -105,15 +105,16 @@
             </div>
 
             <!-- Nav Item - Pages Collapse Menu -->
-            <li class="nav-item">
-                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapsePOS"
+            <li class="nav-item active">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePOS"
                     aria-expanded="true" aria-controls="collapsePOS">
                     <i class="fas fa-fw fa-folder"></i>
                     <span>Stocks</span>
                 </a>
-                <div id="collapsePOS" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+                <div id="collapsePOS" class="collapse show" aria-labelledby="headingPages"
+                    data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" href="abastecer.html">Abastecer Almacen</a>
+                        <a class="collapse-item active" href="abastecer.html">Abastecer Almacen</a>
                         <a class="collapse-item" href="ventas.html">Lista Ventas</a>
                     </div>
                 </div>
@@ -208,21 +209,52 @@
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
-                    <h1 class="h3 mb-4 text-gray-800">Sucursales</h1>
+                    <h1 class="h3 mb-4 text-gray-800">Abastecer Stock por Sucursal</h1>
 
                     <div class="row">
-                        <div class="col-md-12 text-right mb-3">
-                            <span class="btn btn-outline-primary btn-rounded" data-toggle="modal"
-                                data-target="#formulario" onclick="nueva_sucursal();"><i class="fa fa-plus"></i> Nueva
-                                Sucursal</span>
+                        <div class="col-md-12 mb-3 form-row">
+                            <div class="col-md-6">
+                                <label for="id_sucursal">Seleccionar Sucursal</label>
+                                <select name="" id="id_sucursal" class="form-control">
+                                    <option value="0">--SELECCIONE--</option>
+                                </select>
+                            </div>
+                            <div class="col-md-5">
+                                <label for="archivo" class="w-100">Seleccionar Archivo Excel</label>
+                                <label for="archivo" class="btn btn-outline-primary" title="Seleccionar Archivo">
+                                    <i class="far fa-file-excel"></i>
+                                    <input type="file" name="" id="archivo" class="form-control" style="display: none;">
+                                </label>
+                                <span class="text-primary" style="font-size: 13px;" for=""
+                                    id="archivo_seleccionado"></span>
+                            </div>
+                            <div class="col-md-1">
+                                <label for="" class="w-100"></label>
+                                <span class="btn-outline-success btn btn-sm" onclick="cargar_archivo();">
+                                    <i class="fas fa-upload"></i> Cargar</span>
+                            </div>
+
+                            <div class="col-md-12 mt-3">
+                                <progress id="progressBar" class="mt-2" value="0" max="100"
+                                    style="width:100%;"></progress>
+                                <p id="status"></p>
+                                <p id="loaded_n_total"></p>
+                            </div>
                         </div>
                         <div class="table-response w-100">
-                            <table class="table" id="tabla-sucursales">
+                            <div class="form-row mb-3">
+                                <div class="col-12  text-right" id="div-btn-guardar">
+                                    <span class="btn btn-outline-success" onclick="guardar_abastecimiento();">
+                                        <i class="fas fa-check"></i> Guardar</span>
+                                </div>
+                            </div>
+                            <table class="table" id="tabla-abastecer">
                                 <thead>
                                     <th>Id</th>
-                                    <th>Sucursal</th>
-                                    <th>Dirección</th>
-                                    <th></th>
+                                    <!--<th>Sucursal</th>-->
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio Unitario</th>
                                 </thead>
                                 <tbody></tbody>
                             </table>
@@ -311,8 +343,8 @@
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/alertify.min.css" />
     <!-- Default theme -->
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/themes/default.min.css" />
-
-    <script src="js/sucursales.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/5.5.2/bootbox.min.js"></script>
+    <script src="js/abastecer.js"></script>
 </body>
 
 </html>
