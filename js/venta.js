@@ -41,7 +41,6 @@ $(document).ready(function () {
             precios: precios,
             id_cliente: $("#id_cliente").val(),
             id_forma_pago: $("#id_forma_pago").val(),
-            id_sucursal: 2,
             monto: $("#total").val()
         }, function (response) {
             var obj = JSON.parse(response);
@@ -50,7 +49,14 @@ $(document).ready(function () {
                 alertify.success("Venta Registrada Correctamente.");
                 limpiar_formulario();
             } else {
-                alertify.error("Algo ha salido terriblemente mal.");
+                if (obj.Message !== undefined) {
+                    bootbox.alert({
+                        message: "ERROR: " + obj.Message,
+                        size: 'small'
+                    });
+                } else {
+                    alertify.error("Algo ha salido terriblemente mal.");
+                }
             }
         });
     });
@@ -76,9 +82,7 @@ function lista_formas_pagos() {
     });
 }
 function lista_clientes_sucursal() {
-    $.post("ws/service.php?parAccion=lista_clientes_sucursal", {
-        id_sucursal: 2
-    }, function (response) {
+    $.post("ws/service.php?parAccion=lista_clientes_sucursal", function (response) {
         var obj = JSON.parse(response);
         $("#id_cliente").empty();
         $("#id_cliente").append(`<option value="0">--SELECCIONE--</option>`);

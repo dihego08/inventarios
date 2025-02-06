@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>El Secreto de Roxana - Clientes</title>
+    <title>El Secreto de Roxana - Saldos por Cliente</title>
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -68,10 +68,10 @@
                     <div class="bg-white py-2 collapse-inner rounded">
                         <a class="collapse-item" href="sucursales.html">Sucursales</a>
                         <a class="collapse-item" href="usuarios.html">Usuarios</a>
-                        <a class="collapse-item active" href="clientes.html">Clientes</a>
+                        <a class="collapse-item" href="clientes.html">Clientes</a>
                         <a class="collapse-item" href="productos.html">Productos</a>
                         <a class="collapse-item" href="categorias.html">Categorias</a>
-                        <a class="collapse-item" href="saldos.html">Saldos</a>
+                        <a class="collapse-item active" href="saldos.html">Saldos</a>
                     </div>
                 </div>
             </li>
@@ -86,8 +86,8 @@
 
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
-                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapsePOS"
-                    aria-expanded="true" aria-controls="collapsePOS">
+                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapsePOS" aria-expanded="true"
+                    aria-controls="collapsePOS">
                     <i class="fas fa-fw fa-folder"></i>
                     <span>Ventas</span>
                 </a>
@@ -108,8 +108,8 @@
 
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
-                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapsePOS"
-                    aria-expanded="true" aria-controls="collapsePOS">
+                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapsePOS" aria-expanded="true"
+                    aria-controls="collapsePOS">
                     <i class="fas fa-fw fa-folder"></i>
                     <span>Stocks</span>
                 </a>
@@ -120,8 +120,6 @@
                     </div>
                 </div>
             </li>
-
-            <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
 
             <!-- Sidebar Toggler (Sidebar) -->
@@ -186,27 +184,33 @@
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
-                    <h1 class="h3 mb-4 text-gray-800">Clientes</h1>
+                    <h1 class="h3 mb-4 text-gray-800">Lista de Saldos por Cliente</h1>
 
                     <div class="row">
-                        <div class="col-md-12 text-right mb-3">
-                            <span class="btn btn-outline-primary btn-rounded" data-toggle="modal"
-                                data-target="#formulario" onclick="nuevo_cliente();"><i class="fa fa-plus"></i> Nuevo
-                                Cliente</span>
+                        <div class="col-md-10">
+                            <label for="">Seleccionar Alumno</label>
                         </div>
-                        <div class="table-response w-100">
-                            <table class="table" id="tabla-clientes">
+                        <div class="col-md-2"></div>
+                        <div class="col-md-10">
+                            <select name="" id="id_cliente" class="form-control">
+                                <option value="0">--SELECCIONE--</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1">
+                            <span class="btn btn-outline-primary btn-rounded" onclick="buscar_saldos();"><i
+                                    class="fa fa-search"></i> </span>
+                        </div>
+                        <div class="col-md-1">
+                            <span class="btn btn-outline-success btn-rounded" data-toggle="modal"
+                                data-target="#formulario" onclick="limpiar_formulario();"><i class="fa fa-plus"></i>
+                            </span>
+                        </div>
+                        <div class="table-response w-100 mt-3">
+                            <table class="table" id="tabla-saldos">
                                 <thead>
-                                    <th>Id</th>
-                                    <th>Nombres</th>
-                                    <th>DNI</th>
-                                    <th>Sucursal</th>
-                                    <th>Grado</th>
-                                    <th>Seccion</th>
-                                    <th>Tipo</th>
-                                    <th>Padre</th>
-                                    <th>Celular</th>
-                                    <th>Saldo</th>
+                                    <th>Cliente</th>
+                                    <th>Monto</th>
+                                    <th>Fecha</th>
                                     <th></th>
                                 </thead>
                                 <tbody></tbody>
@@ -246,7 +250,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="clienteModalLabel"></h5>
+                    <h5 class="modal-title" id="saldoModalLabel"></h5>
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
@@ -254,54 +258,14 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-12">
-                            <label for="nombres">Nombres</label>
-                            <input type="text" class="form-control" id="nombres">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="dni">DNI</label>
-                            <input type="text" class="form-control" id="dni">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="id_sucursal">Sucursal</label>
-                            <select name="" id="id_sucursal" class="form-control"></select>
-                        </div>
-                        <div class="col-md-12">
-                            <label for="id_tipo_cliente">Tipo Cliente</label>
-                            <select name="" id="id_tipo_cliente" class="form-control">
-                                <option value="0">--SELECCIONE--</option>
-                            </select>
-                        </div>
-                        <div id="div-tipo-cliente" class="col-md-12 form-row" hidden>
-                            <div class="col-md-6">
-                                <label for="grado">Grado</label>
-                                <input type="text" class="form-control" id="grado">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="seccion">Sección</label>
-                                <input type="text" class="form-control" id="seccion">
-                            </div>
-                            <div class="col-md-12">
-                                <label for="padre">Padre</label>
-                                <input type="text" class="form-control" id="padre">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="celular">Celular</label>
-                            <input type="text" class="form-control" id="celular">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="saldo">Saldo</label>
-                            <input type="text" class="form-control" id="saldo">
-                        </div>
-                        <div class="col-md-12">
-                            <label for="correo">Correo</label>
-                            <input type="text" class="form-control" id="correo">
+                            <label for="monto">Monto a Recargar</label>
+                            <input type="text" class="form-control" id="monto">
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
-                    <span class="btn btn-outline-success" id="btn-accion-cliente">Guardar</span>
+                    <span class="btn btn-outline-success" id="btn-accion-saldo">Guardar</span>
                 </div>
             </div>
         </div>
@@ -332,9 +296,8 @@
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/alertify.min.css" />
     <!-- Default theme -->
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/themes/default.min.css" />
-
     <script src="js/util.js"></script>
-    <script src="js/clientes.js"></script>
+    <script src="js/saldos.js"></script>
 </body>
 
 </html>

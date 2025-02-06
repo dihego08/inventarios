@@ -2,6 +2,8 @@
 
 use Shuchkin\SimpleXLSX;
 
+session_start();
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -18,7 +20,7 @@ switch ($accion) {
         break;
     case 'insertar_categoria':
         $_POST['imagen'] = null;
-        $_POST['id_usuario_creacion'] = null;
+        $_POST['id_usuario_creacion'] = $_SESSION['id'];
         $_POST['id_usuario_modificacion'] = null;
         $_POST['fecha_modificacion'] = null;
         $_POST['fecha_creacion'] = null;
@@ -32,7 +34,7 @@ switch ($accion) {
         $_POST['fecha_creacion'] = $_POST['fecha_creacion'];
         $_POST['id_usuario_creacion'] = $_POST['id_usuario_creacion'];
         $_POST['fecha_modificacion'] = date("Y-m-d H:i:s");
-        $_POST['id_usuario_modificacion'] = null;
+        $_POST['id_usuario_modificacion'] = $_SESSION['id'];
         echo $mono->update_data("categorias", $_POST);
         break;
     case 'eliminar_categoria':
@@ -44,7 +46,7 @@ switch ($accion) {
         echo $mono->select_all("sucursales", true);
         break;
     case 'insertar_sucursal':
-        $_POST['id_usuario_creacion'] = null;
+        $_POST['id_usuario_creacion'] = $_SESSION['id'];
         $_POST['id_usuario_modificacion'] = null;
         $_POST['fecha_modificacion'] = null;
         $_POST['fecha_creacion'] = null;
@@ -57,7 +59,7 @@ switch ($accion) {
         $_POST['fecha_creacion'] = $_POST['fecha_creacion'];
         $_POST['id_usuario_creacion'] = $_POST['id_usuario_creacion'];
         $_POST['fecha_modificacion'] = date("Y-m-d H:i:s");
-        $_POST['id_usuario_modificacion'] = null;
+        $_POST['id_usuario_modificacion'] = $_SESSION['id'];
         echo $mono->update_data("sucursales", $_POST);
         break;
     case 'eliminar_sucursal':
@@ -71,6 +73,7 @@ switch ($accion) {
         foreach ($data as $key) {
             $sucursal = json_decode($mono->select_one("sucursales", array("id" => $key->id_sucursal)));
             if (empty($sucursal) || is_null($sucursal)) {
+                $key->sucursal = "";
             } else {
                 $key->sucursal = $sucursal->sucursal;
             }
@@ -80,7 +83,7 @@ switch ($accion) {
         echo json_encode($values);
         break;
     case 'insertar_usuario':
-        $_POST['id_usuario_creacion'] = null;
+        $_POST['id_usuario_creacion'] = $_SESSION['id'];
         $_POST['id_usuario_modificacion'] = null;
         $_POST['fecha_modificacion'] = null;
         $_POST['fecha_creacion'] = null;
@@ -99,7 +102,7 @@ switch ($accion) {
         $_POST['fecha_creacion'] = $_POST['fecha_creacion'];
         $_POST['id_usuario_creacion'] = $_POST['id_usuario_creacion'];
         $_POST['fecha_modificacion'] = date("Y-m-d H:i:s");
-        $_POST['id_usuario_modificacion'] = null;
+        $_POST['id_usuario_modificacion'] = $_SESSION['id'];
         if (empty($_POST['pass']) || is_null($_POST['pass'])) {
             $data = json_decode($mono->select_one("usuarios", array("id" => $_POST['id'])));
             $_POST['pass'] = $data->pass;
@@ -118,7 +121,13 @@ switch ($accion) {
         $values = array();
         foreach ($data as $key) {
             $sucursal = json_decode($mono->select_one("sucursales", array("id" => $key->id_sucursal)));
-            $key->sucursal = $sucursal->sucursal;
+
+
+            if (empty($sucursal) || is_null($sucursal)) {
+                $key->sucursal = '';
+            } else {
+                $key->sucursal = $sucursal->sucursal;
+            }
 
             $tipo_cliente = json_decode($mono->select_one("tipos_clientes", array("id" => $key->id_tipo_cliente)));
             $key->tipo_cliente = $tipo_cliente->tipo_cliente;
@@ -128,10 +137,10 @@ switch ($accion) {
         echo json_encode($values);
         break;
     case 'lista_clientes_sucursal':
-        echo $mono->select_all_where("clientes", array("id_sucursal" => $_POST['id_sucursal']), true);
+        echo $mono->select_all_where("clientes", array("id_sucursal" => $_SESSION['id_sucursal']), true);
         break;
     case 'insertar_cliente':
-        $_POST['id_usuario_creacion'] = null;
+        $_POST['id_usuario_creacion'] = $_SESSION['id'];
         $_POST['id_usuario_modificacion'] = null;
         $_POST['fecha_modificacion'] = null;
         $_POST['fecha_creacion'] = null;
@@ -144,7 +153,7 @@ switch ($accion) {
         $_POST['fecha_creacion'] = $_POST['fecha_creacion'];
         $_POST['id_usuario_creacion'] = $_POST['id_usuario_creacion'];
         $_POST['fecha_modificacion'] = date("Y-m-d H:i:s");
-        $_POST['id_usuario_modificacion'] = null;
+        $_POST['id_usuario_modificacion'] = $_SESSION['id'];
         echo $mono->update_data("clientes", $_POST);
         break;
     case 'eliminar_cliente':
@@ -175,7 +184,7 @@ switch ($accion) {
         break;
     case 'insertar_producto':
         $_POST['imagen'] = null;
-        $_POST['id_usuario_creacion'] = null;
+        $_POST['id_usuario_creacion'] = $_SESSION['id'];
         $_POST['id_usuario_modificacion'] = null;
         $_POST['fecha_modificacion'] = null;
         $_POST['fecha_creacion'] = null;
@@ -189,14 +198,14 @@ switch ($accion) {
         $_POST['fecha_creacion'] = $_POST['fecha_creacion'];
         $_POST['id_usuario_creacion'] = $_POST['id_usuario_creacion'];
         $_POST['fecha_modificacion'] = date("Y-m-d H:i:s");
-        $_POST['id_usuario_modificacion'] = null;
+        $_POST['id_usuario_modificacion'] = $_SESSION['id'];
         echo $mono->update_data("productos", $_POST);
         break;
     case 'eliminar_producto':
         echo $mono->delete_data("productos", array("id" => $_POST['id']));
         break;
     case 'lista_productos_categoria':
-        $sql = 'SELECT p.*, ps.precio_unitario, ps.stock FROM productos p JOIN producto_sucursal ps ON p.id = ps.id_producto AND ps.id_sucursal = 2 WHERE p.id_categoria = ' . $_POST['id_categoria'];
+        $sql = 'SELECT p.*, ps.precio_unitario, ps.stock FROM productos p JOIN producto_sucursal ps ON p.id = ps.id_producto AND ps.id_sucursal = ' . $_SESSION['id_sucursal'] . ' WHERE p.id_categoria = ' . $_POST['id_categoria'];
         echo $mono->run_query($sql);
         break;
 
@@ -206,11 +215,25 @@ switch ($accion) {
         break;
 
     case 'guardar_venta':
-        $_POST['id_usuario_creacion'] = null;
-        $_POST['id_usuario_modificacion'] = 1;
+        $_POST['id_usuario_creacion'] = $_SESSION['id'];
+        $_POST['id_usuario_modificacion'] = $_SESSION['id'];
         $_POST['fecha_modificacion'] = null;
         $_POST['fecha_creacion'] = null;
         $_POST['estado'] = 0;
+
+        if ($_POST['id_forma_pago'] == 2) {
+            $cliente = json_decode($mono->select_one("clientes", array("id" => $_POST['id_cliente'])));
+            if ($cliente->saldo < $_POST['monto']) {
+                echo json_encode(array(
+                    "Result" => "ERROR",
+                    "Message" => "El cliente no tiene saldo suficiente"
+                ));
+                return;
+            } else {
+                $sql = "UPDATE clientes SET saldo = saldo - " . $_POST['monto'] . ", id_usuario_modificacion = " . $_POST['id_usuario_modificacion'] . ", fecha_modificacion = '" . date("Y-m-d H:i:s") . "' WHERE id = " . $_POST['id_cliente'];
+                $mono->executor($sql, "update");
+            }
+        }
 
         $res = json_decode($mono->insert_data("ventas", $_POST, false));
         $LID = $res->LID;
@@ -225,7 +248,7 @@ switch ($accion) {
                 'precio_unitario' => $precios[$i],
                 'cantidad' => $cantidades[$i],
                 'total' => $precios[$i] * $cantidades[$i],
-                'id_usuario_creacion' => 1,
+                'id_usuario_creacion' => $_SESSION['id'],
                 'id_usuario_modificacion' => null,
                 'fecha_modificacion' => null,
                 'fecha_creacion' => null,
@@ -235,12 +258,12 @@ switch ($accion) {
 
             $data_movimientos = $data;
             $data_movimientos['tipo'] = 1;
-            $data_movimientos['id_sucursal'] = $_POST['id_sucursal'];
+            $data_movimientos['id_sucursal'] = $_SESSION['id_sucursal'];
             $data_movimientos['id_cliente'] = $_POST['id_cliente'];
 
             $r2 = $mono->insert_data("movimientos", $data_movimientos, false);
 
-            $sql = "UPDATE producto_sucursal SET stock = stock - " . $cantidades[$i] . ", id_usuario_modificacion = " . $_POST['id_usuario_modificacion'] . ", fecha_modificacion = '" . date("Y-m-d H:i:s") . "' WHERE id_producto = " . $codigo . " AND id_sucursal = " . $_POST['id_sucursal'];
+            $sql = "UPDATE producto_sucursal SET stock = stock - " . $cantidades[$i] . ", id_usuario_modificacion = " . $_POST['id_usuario_modificacion'] . ", fecha_modificacion = '" . date("Y-m-d H:i:s") . "' WHERE id_producto = " . $codigo . " AND id_sucursal = " . $_SESSION['id_sucursal'];
             $mono->executor($sql, "update");
         }
 
@@ -309,7 +332,7 @@ switch ($accion) {
                     $data_movimientos['precio_unitario'] = $i[3];
                     $data_movimientos['id_sucursal'] = $_POST['id_sucursal'];
                     $data_movimientos['id_cliente'] = null;
-                    $data_movimientos['id_usuario_creacion'] = 1;
+                    $data_movimientos['id_usuario_creacion'] = $_SESSION['id'];
                     $data_movimientos['fecha_creacion'] = null;
                     $data_movimientos['id_usuario_modificacion'] = null;
                     $data_movimientos['fecha_modificacion'] = null;
@@ -325,24 +348,73 @@ switch ($accion) {
                         $dd['precio_unitario'] = $i[3];
                         $dd['id_usuario_creacion'] = $data_movimientos['id_usuario_creacion'];
                         $dd['fecha_creacion'] = $data_movimientos['fecha_creacion'];
-                        $dd['id_usuario_modificacion'] = $data_movimientos['id_usuario_modificacion'];
+                        $dd['id_usuario_modificacion'] = $_SESSION['id'];
                         $dd['fecha_modificacion'] = $data_movimientos['fecha_modificacion'];
                         $r3 = $mono->insert_data("producto_sucursal", $dd, false);
                     } else {
                         $sql = "UPDATE producto_sucursal SET stock = stock + " . $i[2] . ", id_usuario_modificacion = " . $data_movimientos['id_usuario_creacion'] . ", fecha_modificacion = '" . date("Y-m-d H:i:s") . "' WHERE id_producto = " . $i[0] . " AND id_sucursal = " . $_POST['id_sucursal'];
                         $mono->executor($sql, "update");
                     }
-
-                    /*********************************** */
-                    /*$sql = "UPDATE producto_sucursal SET stock = stock - 1, id_usuario_modificacion = " . $_POST['id_usuario_modificacion'] . ", fecha_modificacion = '" . date("Y-m-d H:i:s") . "' WHERE id_producto = " . $codigo . " AND id_sucursal = " . $_POST['id_sucursal'];
-                    $mono->executor($sql, "update");*/
                 }
                 $aux++;
             }
-            echo json_encode(array("Result" => "OK", "data" => []));            
+            echo json_encode(array("Result" => "OK", "data" => []));
         } else {
             echo json_encode(array("Result" => "ERROR", "ERROR" => SimpleXLSX::parseError()));
         }
+        break;
+
+
+    case 'buscar_saldos':
+        $sql = "SELECT c.nombres, r.id, r.monto, date(r.fecha_creacion) fecha FROM clientes AS c JOIN recargas AS r ON r.id_cliente = c.id AND c.id = " . $_POST['id_cliente'];
+        echo $mono->run_query($sql);
+        break;
+    case "insertar_saldo":
+        $_POST['id_usuario_creacion'] = $_SESSION['id'];
+        $_POST['id_usuario_modificacion'] = $_SESSION['id'];
+        $_POST['fecha_modificacion'] = null;
+        $_POST['fecha_creacion'] = null;
+        $r1 = $mono->insert_data("recargas", $_POST, false);
+
+        $sql = "UPDATE clientes SET saldo = saldo + " . $_POST['monto'] . ", id_usuario_modificacion = " . $_POST['id_usuario_modificacion'] . ", fecha_modificacion = '" . date("Y-m-d H:i:s") . "' WHERE id = " . $_POST['id_cliente'];
+        echo $mono->executor($sql, "update");
+
+        break;
+
+    case 'iniciar_sesion':
+        $user = $_POST['user'];
+        $pass = $_POST['pass'];
+        $user = json_decode($mono->select_one("usuarios", array("usuario" => $user, "pass" => md5($pass))));
+        if (empty($user) || is_null($user)) {
+            echo json_encode(array(
+                "Result" => "ERROR"
+            ));
+        } else {
+            $_SESSION['id'] = $user->id;
+            $_SESSION['nombres'] = $user->nombres;
+            $_SESSION['id_sucursal'] = $user->id_sucursal;
+            echo json_encode(array(
+                "Result" => "OK"
+            ));
+        }
+        break;
+    case 'get_data_session':
+        if (empty($_SESSION) || is_null($_SESSION)) {
+            echo json_encode(array(
+                "Result" => "ERROR"
+            ));
+        } else {
+            echo json_encode($_SESSION);
+        }
+        break;
+    case 'cerrar_session':
+        session_destroy();
+        unset($_SESSION);
+        break;
+
+    case 'ver_stock':
+        $sql = "SELECT p.producto, ps.* FROM producto_sucursal AS ps JOIN productos AS p on p.id = ps.id_producto AND ps.id_sucursal = " . $_POST['id_sucursal'];
+        echo $mono->run_query($sql);
         break;
     default:
         # code...
