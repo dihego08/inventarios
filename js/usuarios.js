@@ -2,7 +2,17 @@ let current = null;
 $(document).ready(function () {
     lista_usuarios();
     lista_sucursales();
+    lista_roles();
 });
+function lista_roles() {
+    $.post("ws/service.php?parAccion=lista_roles", function (response) {
+        var obj = JSON.parse(response);
+        $("#id_rol").append(`<option value="0">--SELECCIONE--</option>`);
+        $.each(obj, function (index, val) {
+            $("#id_rol").append(`<option value="${val.id}">${val.rol}</option>`);
+        });
+    });
+}
 function lista_sucursales() {
     $.post("ws/service.php?parAccion=lista_sucursales", function (response) {
         var obj = JSON.parse(response);
@@ -23,6 +33,7 @@ function lista_usuarios() {
                 <td>${val.dni}</td>
                 <td>${val.sucursal}</td>
                 <td>${val.usuario}</td>
+                <td>${val.rol}</td>
                 <td>
                     <span class="btn btn-outline-warning btn-sm d-block mb-1" data-toggle="modal" data-target="#formulario" onclick="editar_usuario(${val.id});"><i class="fa fa-edit"></i></span>
                     <span  class="btn btn-outline-danger btn-sm d-block" onclick="eliminar_usuario(${val.id});"><i class="fa fa-trash"></i></span>
@@ -34,6 +45,7 @@ function lista_usuarios() {
 function actualizar_usuario(id) {
     $.post("ws/service.php?parAccion=actualizar_usuario", {
         id_sucursal: $("#id_sucursal").val(),
+        id_rol: $("#id_rol").val(),
         nombres: $("#nombres").val(),
         dni: $("#dni").val(),
         usuario: $("#usuario").val(),
@@ -55,6 +67,7 @@ function actualizar_usuario(id) {
 function insertar_usuario() {
     $.post("ws/service.php?parAccion=insertar_usuario", {
         id_sucursal: $("#id_sucursal").val(),
+        id_rol: $("#id_rol").val(),
         nombres: $("#nombres").val(),
         dni: $("#dni").val(),
         usuario: $("#usuario").val(),
@@ -88,6 +101,7 @@ function editar_usuario(id) {
         $("#nombres").val(obj.nombres);
         $("#dni").val(obj.dni);
         $("#usuario").val(obj.usuario);
+        $("#id_rol").val(obj.id_rol);
     });
 }
 function limpiar_formulario(){

@@ -72,10 +72,16 @@ switch ($accion) {
         $values = array();
         foreach ($data as $key) {
             $sucursal = json_decode($mono->select_one("sucursales", array("id" => $key->id_sucursal)));
+            $rol = json_decode($mono->select_one("roles", array("id" => $key->id_rol)));
             if (empty($sucursal) || is_null($sucursal)) {
                 $key->sucursal = "";
             } else {
                 $key->sucursal = $sucursal->sucursal;
+            }
+            if (empty($rol) || is_null($rol)) {
+                $key->rol = "";
+            } else {
+                $key->rol = $rol->rol;
             }
             unset($key->pass);
             $values[] = $key;
@@ -415,6 +421,41 @@ switch ($accion) {
     case 'ver_stock':
         $sql = "SELECT p.producto, ps.* FROM producto_sucursal AS ps JOIN productos AS p on p.id = ps.id_producto AND ps.id_sucursal = " . $_POST['id_sucursal'];
         echo $mono->run_query($sql);
+        break;
+
+
+    case 'lista_gastos':
+        $data = json_decode($mono->select_all("gastos", true));
+        $values = array();
+        foreach ($data as $key) {
+            $sucursal = json_decode($mono->select_one("sucursales", array("id" => $key->id_sucursal)));
+            if (empty($sucursal) || is_null($sucursal)) {
+                $key->sucursal = "";
+            } else {
+                $key->sucursal = $sucursal->sucursal;
+            }
+            unset($key->pass);
+            $values[] = $key;
+        }
+        echo json_encode($values);
+        break;
+    case 'insertar_gasto':
+        $_POST['id_usuario_creacion'] = $_SESSION['id'];
+        $_POST['fecha_creacion'] = null;
+        $_POST['fecha_modificacion'] = null;
+        $_POST['id_usuario_modificacion'] = null;
+        echo $mono->insert_data("gastos", $_POST, false);
+        break;
+    case 'editar_gasto':
+        echo $mono->select_one("gastos", array("id" => $_POST['id']));
+        break;
+    case 'actualizar_gasto':
+        $_POST['fecha_modificacion'] = date("Y-m-d H:i:s");
+        $_POST['id_usuario_modificacion'] = $_SESSION['id'];
+        echo $mono->update_data("gastos", $_POST);
+        break;
+    case 'lista_roles':
+        echo $mono->select_all("roles", true);
         break;
     default:
         # code...

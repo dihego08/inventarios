@@ -29,15 +29,11 @@
     <div id="wrapper">
 
         <!-- Sidebar -->
-        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+        <ul class="navbar-nav bg-gradient-primary-alt sidebar sidebar-dark accordion" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
-                <div class="sidebar-brand-icon rotate-n-15">
-                    <i class="fas fa-laugh-wink"></i>
-                </div>
-                <div class="sidebar-brand-text mx-3">SB Admin <sup>2</sup></div>
-            </a>
+            <div id="sidebar-brand-logo">
+            </div>
 
             <!-- Divider -->
             <hr class="sidebar-divider my-0">
@@ -66,13 +62,14 @@
                 </a>
                 <div id="collapsePages" class="collapse show" aria-labelledby="headingPages"
                     data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
+                    <div class="bg-brown py-2 collapse-inner rounded">
                         <a class="collapse-item" href="sucursales.html">Sucursales</a>
                         <a class="collapse-item" href="usuarios.html">Usuarios</a>
                         <a class="collapse-item" href="clientes.html">Clientes</a>
                         <a class="collapse-item active" href="productos.html">Productos</a>
                         <a class="collapse-item" href="categorias.html">Categorias</a>
                         <a class="collapse-item" href="saldos.html">Saldos</a>
+                        <a class="collapse-item" href="gastos.html">Gastos</a>
                     </div>
                 </div>
             </li>
@@ -93,7 +90,7 @@
                     <span>Ventas</span>
                 </a>
                 <div id="collapsePOS" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
+                    <div class="bg-brown py-2 collapse-inner rounded">
                         <a class="collapse-item" href="venta.html">Nueva Venta</a>
                         <a class="collapse-item" href="ventas.html">Lista Ventas</a>
                     </div>
@@ -109,13 +106,13 @@
 
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
-                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapsePOS" aria-expanded="true"
-                    aria-controls="collapsePOS">
+                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseStock" aria-expanded="true"
+                    aria-controls="collapseStock">
                     <i class="fas fa-fw fa-folder"></i>
                     <span>Stocks</span>
                 </a>
-                <div id="collapsePOS" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
+                <div id="collapseStock" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+                    <div class="bg-brown py-2 collapse-inner rounded">
                         <a class="collapse-item" href="abastecer.html">Abastecer Sucursal</a>
                         <a class="collapse-item" href="stock.html">Stock Actual</a>
                     </div>
@@ -138,7 +135,7 @@
             <div id="content">
 
                 <!-- Topbar -->
-                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+                <nav class="navbar navbar-expand navbar-light bg-brown-alt topbar mb-4 static-top shadow" style="box-shadow: 0px 2px 8px 2px #313131 !important;">
 
                     <!-- Sidebar Toggle (Topbar) -->
                     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
@@ -194,12 +191,12 @@
                                 Producto</span>
                         </div>
                         <div class="table-response w-100">
-                            <table class="table table-bordered" id="tabla-productos">
+                            <table class="table table-bordered table-striped" id="tabla-productos">
                                 <thead>
                                     <th>Id</th>
                                     <th>Producto</th>
                                     <th>Categoría</th>
-                                    <th></th>
+                                    <th width="5%"></th>
                                 </thead>
                                 <tbody></tbody>
                             </table>
@@ -212,12 +209,7 @@
             <!-- End of Main Content -->
 
             <!-- Footer -->
-            <footer class="sticky-footer bg-white">
-                <div class="container my-auto">
-                    <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; Your Website 2021</span>
-                    </div>
-                </div>
+            <footer class="sticky-footer bg-white" id="footer-dom">
             </footer>
             <!-- End of Footer -->
 
