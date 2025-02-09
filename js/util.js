@@ -1,5 +1,7 @@
 $(document).ready(function () {
     $("#li-user").load("js/dom/user.html");
+    $("#sidebar-brand-logo").load("js/dom/logo.html");
+    $("#footer-dom").load("js/dom/footer.html");
     get_data_session();
 });
 function get_data_session() {
