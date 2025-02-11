@@ -9,6 +9,8 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 date_default_timezone_set('America/Lima');
 include('../env/Monodon.php');
+include('models/Sucursal.php');
+include('models/Ventas.php');
 require __DIR__ . '/simplexlsx/src/SimpleXLSX.php';
 $mono = new Monodon();
 $con = $mono->getConnection();
@@ -46,21 +48,23 @@ switch ($accion) {
         echo $mono->select_all("sucursales", true);
         break;
     case 'insertar_sucursal':
-        $_POST['id_usuario_creacion'] = $_SESSION['id'];
-        $_POST['id_usuario_modificacion'] = null;
-        $_POST['fecha_modificacion'] = null;
-        $_POST['fecha_creacion'] = null;
-        echo $mono->insert_data("sucursales", $_POST, false);
+        $sucursal = new Sucursal;
+        $sucursal->sucursal = $_POST['sucursal'];
+        $sucursal->direccion = $_POST['direccion'];
+        $sucursal->id_usuario_creacion = $_SESSION['id'];
+        echo $mono->insert_data_v2("sucursales", $sucursal);
         break;
     case 'editar_sucursal':
         echo $mono->select_one("sucursales", array("id" => $_POST['id']));
         break;
     case 'actualizar_sucursal':
-        $_POST['fecha_creacion'] = $_POST['fecha_creacion'];
-        $_POST['id_usuario_creacion'] = $_POST['id_usuario_creacion'];
-        $_POST['fecha_modificacion'] = date("Y-m-d H:i:s");
-        $_POST['id_usuario_modificacion'] = $_SESSION['id'];
-        echo $mono->update_data("sucursales", $_POST);
+        $sucursal = new Sucursal;
+        $sucursal->sucursal = $_POST['sucursal'];
+        $sucursal->direccion = $_POST['direccion'];
+        $sucursal->id_usuario_modificacion = $_SESSION['id'];
+        $sucursal->fecha_modificacion = date("Y-m-d H:i:s");
+        $sucursal->id = $_POST['id'];
+        echo $mono->update_data_v2("sucursales", $sucursal);
         break;
     case 'eliminar_sucursal':
         echo $mono->delete_data("sucursales", array("id" => $_POST['id']));
@@ -240,8 +244,16 @@ switch ($accion) {
                 $mono->executor($sql, "update");
             }
         }
+        $venta = new Ventas();
+        $venta->id_cliente = $_POST['id_cliente'];
+        $venta->id_sucursal = $_SESSION['id_sucursal'];
+        $venta->monto = $_POST['monto'];
+        $venta->id_usuario_creacion = $_SESSION['id'];
+        $venta->id_forma_pago = $_POST['id_forma_pago'];
+        $venta->estado = 0;
 
-        $res = json_decode($mono->insert_data("ventas", $_POST, false));
+        $res = json_decode($mono->insert_data_v2("ventas", $venta));
+
         $LID = $res->LID;
         $codigos_carro = $_POST['codigos_carro'];
         $cantidades = $_POST['cantidades'];

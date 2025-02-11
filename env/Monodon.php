@@ -5,6 +5,7 @@ class Monodon
     protected $md;
     protected $con;
     public function __construct($server = "mysql:host=localhost;dbname=user", $user = "user", $pass = "pass", $options = [PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'UTF8'"])
+
     {
         try {
             $this->con = new PDO($server, $user, $pass, $options);
@@ -17,6 +18,25 @@ class Monodon
     public function getConnection()
     {
         return $this->con;
+    }
+    function statement_insert_v2($tbl, $arr)
+    {
+        $tbl_desc = $this->table_detail($tbl);
+        $query = "INSERT INTO " . $tbl . "(";
+        $dd = "";
+        $i = 0;
+        foreach ($arr as $key => $value) {
+            if ($i == 0) {
+                $query .= $key;
+                $dd .= ':' . $key;
+            } else {
+                $query .= ', ' . $key;
+                $dd .= ', :' . $key;
+            }
+            $i++;
+        }
+        $query .= ') VALUES(' . $dd . ')';
+        return $query;
     }
     function statement_insert($tbl, $YN)
     {
@@ -45,6 +65,22 @@ class Monodon
             }
         }
         $query .= ') VALUES(' . $dd . ')';
+        return $query;
+    }
+    function statement_update_v2($tbl, $arr)
+    {
+        //$tbl_desc = $this->table_detail($tbl);
+        $query = "UPDATE " . $tbl . " SET ";
+        $i = 0;
+        foreach ($arr as $key => $value) {
+            if ($i == 0) {
+                $query .= $key . ' = ' . ':' . $key;
+            } else {
+                $query .= ', ' . $key . " = " . ':' . $key;
+            }
+            $i++;
+        }
+        $query .= ' WHERE id = :id';
         return $query;
     }
     function statement_update($tbl)
@@ -88,6 +124,17 @@ class Monodon
                 $arr[':' . $arr2[0]['Field']] = $POST[$arr2[0]['Field']];
                 break;
         }
+    }
+
+    function insert_data_v2($tbl, $arr)
+    {
+        foreach ($arr as $key => $value) {
+            if (empty($value)) {
+                unset($arr->$key);
+            }
+        }
+        $query = $this->statement_insert_v2($tbl, $arr);
+        return $this->execute_query($query, get_object_vars($arr));
     }
     function insert_data($tbl, $POST, $YN)
     {
@@ -190,6 +237,16 @@ class Monodon
         }
         return $this->update_value('aux', 'value', $tbl);
     }
+    function update_data_v2($tbl, $arr)
+    {
+        foreach ($arr as $key => $value) {
+            if (empty($value)) {
+                unset($arr->$key);
+            }
+        }
+        $query = $this->statement_update_v2($tbl, $arr);
+        return $this->execute_query($query, get_object_vars($arr));
+    }
     function update_data($tbl, $POST)
     {
         $query = $this->statement_update($tbl);
@@ -210,7 +267,8 @@ class Monodon
             return $this->execute_query($query, $arr);
         }
     }
-    function execute_query($query, $arr){
+    function execute_query($query, $arr)
+    {
         try {
             $this->con->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->con->beginTransaction();
@@ -224,7 +282,7 @@ class Monodon
                 'LID' => $lid
             );
             return json_encode($result);
-        }catch (Exception $e) {
+        } catch (Exception $e) {
             $this->con->rollBack();
             $result = array(
                 'Result' => 'ERROR',
