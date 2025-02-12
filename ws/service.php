@@ -11,6 +11,7 @@ date_default_timezone_set('America/Lima');
 include('../env/Monodon.php');
 include('models/Sucursal.php');
 include('models/Ventas.php');
+include('models/Movimientos.php');
 require __DIR__ . '/simplexlsx/src/SimpleXLSX.php';
 $mono = new Monodon();
 $con = $mono->getConnection();
@@ -259,27 +260,27 @@ switch ($accion) {
         $cantidades = $_POST['cantidades'];
         $precios = $_POST['precios'];
 
+        $venta_detalle = new Venta_detalle;
+        $movimientos = new Movimientos;
         foreach ($codigos_carro as $i => $codigo) {
-            $data = [
-                'id_venta' => $LID,
-                'id_producto' => $codigo,
-                'precio_unitario' => $precios[$i],
-                'cantidad' => $cantidades[$i],
-                'total' => $precios[$i] * $cantidades[$i],
-                'id_usuario_creacion' => $_SESSION['id'],
-                'id_usuario_modificacion' => null,
-                'fecha_modificacion' => null,
-                'fecha_creacion' => null,
-            ];
+            $venta_detalle->id_venta = $LID;
+            $venta_detalle->id_producto = $codigo;
+            $venta_detalle->precio_unitario = $precios[$i];
+            $venta_detalle->cantidad = $cantidades[$i];
+            $venta_detalle->total = $precios[$i] * $cantidades[$i];
+            $venta_detalle->id_usuario_creacion = $_SESSION['id'];
 
-            $r1 = $mono->insert_data("venta_detalle", $data, false);
+            $r1 = $mono->insert_data_v2("venta_detalle", $venta_detalle);
 
-            $data_movimientos = $data;
-            $data_movimientos['tipo'] = 1;
-            $data_movimientos['id_sucursal'] = $_SESSION['id_sucursal'];
-            $data_movimientos['id_cliente'] = $_POST['id_cliente'];
+            $movimientos->tipo = 1;
+            $movimientos->id_producto = $codigo;
+            $movimientos->cantidad = $cantidades[$i];
+            $movimientos->precio_unitario = $precios[$i];
+            $movimientos->id_sucursal = $_SESSION['id_sucursal'];
+            $movimientos->id_cliente = $_POST['id_cliente'];
+            $movimientos->id_usuario_creacion = $_SESSION['id'];
 
-            $r2 = $mono->insert_data("movimientos", $data_movimientos, false);
+            $r2 = $mono->insert_data_v2("movimientos", $movimientos);
 
             $sql = "UPDATE producto_sucursal SET stock = stock - " . $cantidades[$i] . ", id_usuario_modificacion = " . $_POST['id_usuario_modificacion'] . ", fecha_modificacion = '" . date("Y-m-d H:i:s") . "' WHERE id_producto = " . $codigo . " AND id_sucursal = " . $_SESSION['id_sucursal'];
             $mono->executor($sql, "update");
@@ -288,7 +289,7 @@ switch ($accion) {
         echo json_encode(array("Result" => "OK"));
         break;
     case 'lista_ventas':
-        $sql = "SELECT v.*, c.nombres, s.sucursal, DATE(v.fecha_creacion) as fecha FROM ventas AS v LEFT JOIN clientes AS c ON c.id = v.id_cliente LEFT JOIN sucursales AS s ON s.id = v.id_sucursal WHERE v.estado = 0";
+        $sql = "SELECT v.*, c.nombres, s.sucursal, DATE(DATE_SUB(v.fecha_creacion, INTERVAL 5 HOUR)) as fecha FROM ventas AS v LEFT JOIN clientes AS c ON c.id = v.id_cliente LEFT JOIN sucursales AS s ON s.id = v.id_sucursal WHERE v.estado = 0";
         echo $mono->run_query($sql);
         break;
     case 'eliminar_venta':
@@ -468,6 +469,11 @@ switch ($accion) {
         break;
     case 'lista_roles':
         echo $mono->select_all("roles", true);
+        break;
+
+    case 'ver_movimientos':
+        $sql = "SELECT p.producto, m.id, m.tipo, m.id_producto, m.cantidad, m.precio_unitario, c.nombres, DATE_SUB(m.fecha_creacion, INTERVAL 5 HOUR) as fecha FROM movimientos AS m left join productos AS p on p.id = m.id_producto left join clientes as c on c.id = m.id_cliente WHERE m.id_sucursal = " . $_POST['id_sucursal'];
+        echo $mono->run_query($sql);
         break;
     default:
         # code...

@@ -8,12 +8,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
+
     <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
-
-    <title>El Secreto de Roxana - Productos</title>
+    <title>El Secreto de Roxana - Movimientos</title>
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -23,8 +23,7 @@
 
     <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.datatables.net/2.2.1/css/dataTables.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/3.2.0/css/buttons.dataTables.min.css">
+
 </head>
 
 <body id="page-top">
@@ -58,19 +57,18 @@
             </div>
 
             <!-- Nav Item - Pages Collapse Menu -->
-            <li class="nav-item active">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages"
-                    aria-expanded="true" aria-controls="collapsePages">
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapsePages" aria-expanded="true"
+                    aria-controls="collapsePages">
                     <i class="fas fa-fw fa-folder"></i>
                     <span>Control</span>
                 </a>
-                <div id="collapsePages" class="collapse show" aria-labelledby="headingPages"
-                    data-parent="#accordionSidebar">
+                <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                     <div class="bg-brown py-2 collapse-inner rounded">
                         <a class="collapse-item" href="sucursales.html">Sucursales</a>
                         <a class="collapse-item" href="usuarios.html">Usuarios</a>
                         <a class="collapse-item" href="clientes.html">Clientes</a>
-                        <a class="collapse-item active" href="productos.html">Productos</a>
+                        <a class="collapse-item" href="productos.html">Productos</a>
                         <a class="collapse-item" href="categorias.html">Categorias</a>
                         <a class="collapse-item" href="saldos.html">Saldos</a>
                         <a class="collapse-item" href="gastos.html">Gastos</a>
@@ -109,17 +107,18 @@
             </div>
 
             <!-- Nav Item - Pages Collapse Menu -->
-            <li class="nav-item">
-                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseStock" aria-expanded="true"
-                    aria-controls="collapseStock">
+            <li class="nav-item active">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseStock"
+                    aria-expanded="true" aria-controls="collapseStock">
                     <i class="fas fa-fw fa-folder"></i>
                     <span>Stocks</span>
                 </a>
-                <div id="collapseStock" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+                <div id="collapseStock" class="collapse show" aria-labelledby="headingPages"
+                    data-parent="#accordionSidebar">
                     <div class="bg-brown py-2 collapse-inner rounded">
                         <a class="collapse-item" href="abastecer.html">Abastecer Sucursal</a>
                         <a class="collapse-item" href="stock.html">Stock Actual</a>
-                        <a class="collapse-item" href="movimientos.html">Movimientos</a>
+                        <a class="collapse-item active" href="movimientos.html">Movimientos</a>
                     </div>
                 </div>
             </li>
@@ -140,7 +139,8 @@
             <div id="content">
 
                 <!-- Topbar -->
-                <nav class="navbar navbar-expand navbar-light bg-brown-alt topbar mb-4 static-top shadow" style="box-shadow: 0px 2px 8px 2px #313131 !important;">
+                <nav class="navbar navbar-expand navbar-light bg-brown-alt topbar mb-4 static-top shadow"
+                    style="box-shadow: 0px 2px 8px 2px #313131 !important;">
 
                     <!-- Sidebar Toggle (Topbar) -->
                     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
@@ -187,21 +187,32 @@
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
-                    <h1 class="h3 mb-4 text-gray-800">Productos</h1>
+                    <h1 class="h3 mb-4 text-gray-800">Movimientos</h1>
 
                     <div class="row">
-                        <div class="col-md-12 text-right mb-3">
-                            <span class="btn btn-outline-primary btn-rounded" data-toggle="modal"
-                                data-target="#formulario" onclick="nuevo_producto();"><i class="fa fa-plus"></i> Nuevo
-                                Producto</span>
+                        <div class="col-md-12 mb-3 form-row">
+                            <div class="col-md-11">
+                                <label for="id_sucursal">Seleccionar Sucursal</label>
+                                <select name="" id="id_sucursal" class="form-control">
+                                    <option value="0">--SELECCIONE--</option>
+                                </select>
+                            </div>
+                            <div class="col-md-1">
+                                <label for="" class="w-100"></label>
+                                <span class="btn-outline-success btn btn-sm" onclick="ver_movimientos();">
+                                    <i class="fas fa-search"></i> Ver Movimientos</span>
+                            </div>
                         </div>
                         <div class="table-response w-100">
-                            <table class="table table-bordered table-striped" id="tabla-productos">
+                            <table class="table table-bordered table-striped" id="tabla-movimientos">
                                 <thead>
                                     <th>Id</th>
                                     <th>Producto</th>
-                                    <th>Categoría</th>
-                                    <th width="5%"></th>
+                                    <th>Tipo</th>
+                                    <th>Cantidad</th>
+                                    <th>Cliente</th>
+                                    <th>Precio Unitario</th>
+                                    <th>Fecha</th>
                                 </thead>
                                 <tbody></tbody>
                             </table>
@@ -235,7 +246,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="productoModalLabel"></h5>
+                    <h5 class="modal-title" id="sucursalModalLabel"></h5>
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
@@ -243,20 +254,18 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-12">
-                            <label for="producto">Producto</label>
-                            <input type="text" class="form-control" id="producto">
+                            <label for="sucursal">Sucursal</label>
+                            <input type="text" class="form-control" id="sucursal">
                         </div>
                         <div class="col-md-12">
-                            <label for="id_categoria">Categoría</label>
-                            <select name="" id="id_categoria" class="form-control">
-                                <option value="0">--SELECCIONE--</option>
-                            </select>
+                            <label for="direccion">Dirección</label>
+                            <input type="text" class="form-control" id="direccion">
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
-                    <span class="btn btn-outline-success" id="btn-accion-producto">Guardar</span>
+                    <span class="btn btn-outline-success" id="btn-accion-sucursal">Guardar</span>
                 </div>
             </div>
         </div>
@@ -279,19 +288,9 @@
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/alertify.min.css" />
     <!-- Default theme -->
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/themes/default.min.css" />
-    <script src="https://cdn.datatables.net/2.2.1/js/dataTables.min.js"></script>
-    <!--<script src="https://cdn.datatables.net/buttons/3.2.0/js/dataTables.buttons.min.js"></script>-->
-
-    <script src="https://cdn.datatables.net/buttons/1.6.5/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/1.6.5/js/buttons.flash.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
-    <script src="https://cdn.datatables.net/buttons/1.6.5/js/buttons.html5.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/1.6.5/js/buttons.print.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/1.6.5/js/buttons.colVis.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/5.5.2/bootbox.min.js"></script>
     <script src="js/util.js"></script>
-    <script src="js/productos.js"></script>
+    <script src="js/movimientos.js"></script>
 </body>
 
 </html>
