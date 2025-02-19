@@ -35,7 +35,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.min.css"
         rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css">
 </head>
 
 <body id="page-top">
@@ -121,8 +120,8 @@
 
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
-                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseStock" aria-expanded="true"
-                    aria-controls="collapseStock">
+                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseStock"
+                    aria-expanded="true" aria-controls="collapseStock">
                     <i class="fas fa-fw fa-folder"></i>
                     <span>Stocks</span>
                 </a>
@@ -152,8 +151,7 @@
             <div id="content">
 
                 <!-- Topbar -->
-                <nav class="navbar navbar-expand navbar-light bg-brown-alt topbar mb-4 static-top shadow"
-                    style="box-shadow: 0px 2px 8px 2px #313131 !important;">
+                <nav class="navbar navbar-expand navbar-light bg-brown-alt topbar mb-4 static-top shadow" style="box-shadow: 0px 2px 8px 2px #313131 !important;">
 
                     <!-- Sidebar Toggle (Topbar) -->
                     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
@@ -200,77 +198,72 @@
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
-                    <h1 class="h3 mb-4 text-gray-800">Nueva Venta</h1>
+                    <h1 class="h3 mb-4 text-gray-800">Categorías</h1>
+
                     <div class="row">
+                        <div class="col-md-12 row" id="div-categorias">
+                        </div>
                         <div class="col-md-12 row">
-                            <div class="form-group col-md-4 my-2">
-                                <label>Cliente</label>
-                            </div>
-                            <div class="form-group col-md-4 my-2">
-                                <label for="producto">Producto</label>
-                            </div>
-                            <div class="form-group col-md-3 my-2">
-                                <label for="cantidad">Cantidad</label>
-                            </div>
-                            <div class="form-group col-md-1 my-2"></div>
-                            <div class="form-group col-md-4 my-2">
+                            <h4 class="d-block w-100">Lista Productos</h4>
+                            <div class="col-md-8 row" id="div-productos">
 
-                                <div class="input-group mb-3" style="display: flex;">
-                                    <select name="" id="id_cliente" class="form-control">
-                                        <option value="0">--SELECCIONE--</option>
-                                    </select>
-                                </div>
                             </div>
+                            <div class="col-md-4" style="border-left: solid 1px #313131;">
+                                <div class="row">
+                                    <h4>Resumen de Venta</h4>
+                                    <!--<div class="col-md-12 my-2">
+                                        <label for="">Fecha:</label>
+                                        <input class="form-control" type="text" name="mesa" id="fecha">
+                                    </div>-->
+                                    <div class="form-group col-md-12 my-2">
+                                        <label>Cliente</label>
+                                        <div class="input-group mb-3" style="display: flex;">
+                                            <select name="" id="id_cliente" class="form-control">
+                                                <option value="0">--SELECCIONE--</option>
+                                            </select>
+                                            <div class="input-group-append">
+                                                <button class="btn btn-success" type="button" data-toggle="modal"
+                                                    data-target="#formulario" onclick="nuevo_cliente();">
+                                                    <i class="fa fa-plus"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-12 my-2">
+                                        <label>Forma de Pago</label>
+                                        <select class="form-control" id="id_forma_pago" name="id_forma_pago">
+                                            <option value="0">--SELECCIONE--</option>
+                                        </select>
+                                    </div>
+                                    <div class="w-100 col-md-12" id="div_lista_ventas">
+                                        <div class="order-empty" style="text-align: center; margin: 48px; color: #DDD;">
+                                            <i class="fa fa-shopping-cart" role="img" aria-label="Shopping cart"
+                                                title="Shopping cart" style="font-size: 64px;"></i>
+                                            <h1 style="font-size: 20px;">La lista esta vacia.</h1>
+                                        </div>
+                                    </div>
 
-                            <div class="form-group col-md-4 my-2">
-
-                                <div class="input-group mb-3" style="display: flex;">
-                                    <input type="text" class="form-control" id="producto">
                                 </div>
-                            </div>
-                            <div class="form-group col-md-3 my-2">
-
-                                <div class="input-group mb-3" style="display: flex;">
-                                    <input type="text" class="form-control" id="cantidad">
-                                </div>
-                            </div>
-                            <div class="form-group col-md-1 my-2">
-                                <span class="btn btn-outline-success w-100" id="add-item">
-                                    <i class="fa fa-check"></i>
-                                </span>
-                            </div>
-                            <hr class="w-100">
-                            <div class="w-100 col-md-3" id="div_lista_ventas">
-                                <div class="order-empty" style="text-align: center; margin: 48px; color: #DDD;">
-                                    <i class="fa fa-shopping-cart" role="img" aria-label="Shopping cart"
-                                        title="Shopping cart" style="font-size: 64px;"></i>
-                                    <h1 style="font-size: 20px;">La lista esta vacia.</h1>
-                                </div>
-                            </div>
-                            <div class="form-group col-md-3 my-2">
-                                <label>Forma de Pago</label>
-                                <select class="form-control" id="id_forma_pago" name="id_forma_pago">
-                                    <option value="0">--SELECCIONE--</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <table class="table">
-                                    <tbody>
-                                        <tr>
-                                            <th scope="row" width="50%" style="text-align: right;">
-                                                Total:
-                                            </th>
-                                            <td id="">
-                                                <span id="total_detalle_span">S/ </span>
-                                                <input type="hidden" name="" readonly id="total" class="form-control">
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
                                 <hr>
-                                <div class="w-100 text-center">
-                                    <button class="btn btn-success" id="guardar_venta">Guardar Venta</button>
-                                    <button class="btn btn-danger" onclick="limpiar_formulario();">Cancelar</button>
+                                <div class="row">
+                                    <table class="table">
+                                        <tbody>
+                                            <tr>
+                                                <th scope="row" width="50%" style="text-align: right;">
+                                                    Total:
+                                                </th>
+                                                <td id="">
+                                                    <span id="total_detalle_span">S/ </span>
+                                                    <input type="hidden" name="" readonly id="total"
+                                                        class="form-control">
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <hr>
+                                    <div class="w-100 text-center">
+                                        <button class="btn btn-success" id="guardar_venta">Guardar Venta</button>
+                                        <button class="btn btn-danger" onclick="limpiar_formulario();">Cancelar</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -297,6 +290,72 @@
         <i class="fas fa-angle-up"></i>
     </a>
 
+    <div class="modal fade" id="formulario" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="clienteModalLabel"></h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label for="nombres">Nombres</label>
+                            <input type="text" class="form-control" id="nombres">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="dni">DNI</label>
+                            <input type="text" class="form-control" id="dni">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="id_sucursal">Sucursal</label>
+                            <select name="" id="id_sucursal" class="form-control"></select>
+                        </div>
+                        <div class="col-md-12">
+                            <label for="id_tipo_cliente">Tipo Cliente</label>
+                            <select name="" id="id_tipo_cliente" class="form-control">
+                                <option value="0">--SELECCIONE--</option>
+                            </select>
+                        </div>
+                        <div id="div-tipo-cliente" class="col-md-12 form-row" hidden>
+                            <div class="col-md-6">
+                                <label for="grado">Grado</label>
+                                <input type="text" class="form-control" id="grado">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="seccion">Sección</label>
+                                <input type="text" class="form-control" id="seccion">
+                            </div>
+                            <div class="col-md-12">
+                                <label for="padre">Padre</label>
+                                <input type="text" class="form-control" id="padre">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="celular">Celular</label>
+                            <input type="text" class="form-control" id="celular">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="saldo">Saldo</label>
+                            <input type="text" class="form-control" id="saldo">
+                        </div>
+                        <div class="col-md-12">
+                            <label for="correo">Correo</label>
+                            <input type="text" class="form-control" id="correo">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
+                    <span class="btn btn-outline-success" id="btn-accion-cliente">Guardar</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap core JavaScript-->
     <script src="vendor/jquery/jquery.min.js"></script>
     <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -320,7 +379,6 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/5.5.2/bootbox.min.js"></script>
     <script src="js/util.js"></script>
-    <script src="https://code.jquery.com/ui/1.14.1/jquery-ui.js"></script>
     <script src="js/venta.js"></script>
 </body>
 

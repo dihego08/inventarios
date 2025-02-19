@@ -324,6 +324,38 @@ switch ($accion) {
             echo json_encode(array("Result" => "ERROR", "ERROR" => SimpleXLSX::parseError()));
         }
         break;
+    case 'guardar_abastecimiento_manual':
+        $data_movimientos['tipo'] = 0;
+        $data_movimientos['id_producto'] = $_POST['id_producto'];
+        $data_movimientos['cantidad'] = $_POST['cantidad'];
+        $data_movimientos['precio_unitario'] = $_POST['precio_unitario'];
+        $data_movimientos['id_sucursal'] = $_POST['id_sucursal'];
+        $data_movimientos['id_cliente'] = null;
+        $data_movimientos['id_usuario_creacion'] = $_SESSION['id'];
+        $data_movimientos['fecha_creacion'] = null;
+        $data_movimientos['id_usuario_modificacion'] = null;
+        $data_movimientos['fecha_modificacion'] = null;
+
+        $r2 = $mono->insert_data("movimientos", $data_movimientos, false);
+
+        $existe = json_decode($mono->select_one("producto_sucursal", array("id_producto" => $_POST['id_producto'], "id_sucursal" => $_POST['id_sucursal'])));
+        if (empty($existe) || is_null($existe)) {
+
+            $dd['id_producto'] = $_POST['id_producto'];
+            $dd['stock'] = $_POST['cantidad'];
+            $dd['id_sucursal'] = $_POST['id_sucursal'];
+            $dd['precio_unitario'] = $_POST['precio_unitario'];
+            $dd['id_usuario_creacion'] = $data_movimientos['id_usuario_creacion'];
+            $dd['fecha_creacion'] = $data_movimientos['fecha_creacion'];
+            $dd['id_usuario_modificacion'] = $_SESSION['id'];
+            $dd['fecha_modificacion'] = $data_movimientos['fecha_modificacion'];
+            $r3 = $mono->insert_data("producto_sucursal", $dd, false);
+        } else {
+            $sql = "UPDATE producto_sucursal SET stock = stock + " . $_POST['cantidad'] . ", id_usuario_modificacion = " . $data_movimientos['id_usuario_creacion'] . ", fecha_modificacion = '" . date("Y-m-d H:i:s") . "', precio_unitario=" . $_POST['precio_unitario'] . " WHERE id_producto = " . $_POST['id_producto'] . " AND id_sucursal = " . $_POST['id_sucursal'];
+            $mono->executor($sql, "update");
+        }
+        echo json_encode(array("Result" => "OK", "data" => []));
+        break;
     case "guardar_abastecimiento":
         $fileName = $_FILES["archivo"]["name"];
         $fileTmpLoc = $_FILES["archivo"]["tmp_name"];
@@ -371,7 +403,7 @@ switch ($accion) {
                         $dd['fecha_modificacion'] = $data_movimientos['fecha_modificacion'];
                         $r3 = $mono->insert_data("producto_sucursal", $dd, false);
                     } else {
-                        $sql = "UPDATE producto_sucursal SET stock = stock + " . $i[2] . ", id_usuario_modificacion = " . $data_movimientos['id_usuario_creacion'] . ", fecha_modificacion = '" . date("Y-m-d H:i:s") . "' WHERE id_producto = " . $i[0] . " AND id_sucursal = " . $_POST['id_sucursal'];
+                        $sql = "UPDATE producto_sucursal SET stock = stock + " . $i[2] . ", id_usuario_modificacion = " . $data_movimientos['id_usuario_creacion'] . ", fecha_modificacion = '" . date("Y-m-d H:i:s") . "', precio_unitario=" . $_POST['precio_unitario'] . " WHERE id_producto = " . $i[0] . " AND id_sucursal = " . $_POST['id_sucursal'];
                         $mono->executor($sql, "update");
                     }
                 }
@@ -473,6 +505,10 @@ switch ($accion) {
 
     case 'ver_movimientos':
         $sql = "SELECT p.producto, m.id, m.tipo, m.id_producto, m.cantidad, m.precio_unitario, c.nombres, DATE_SUB(m.fecha_creacion, INTERVAL 5 HOUR) as fecha FROM movimientos AS m left join productos AS p on p.id = m.id_producto left join clientes as c on c.id = m.id_cliente WHERE m.id_sucursal = " . $_POST['id_sucursal'];
+        echo $mono->run_query($sql);
+        break;
+    case 'autocomplete':
+        $sql = 'SELECT p.*, ps.precio_unitario, ps.stock FROM productos p JOIN producto_sucursal ps ON p.id = ps.id_producto AND ps.id_sucursal = ' . $_SESSION['id_sucursal'] . ' WHERE p.producto LIKE "%' . $_GET['search'] . '%"';
         echo $mono->run_query($sql);
         break;
     default:

@@ -1,12 +1,35 @@
 var codigos_carro = [];
 var cantidades = [];
 var precios = [];
-let id_cliente_general = 0;
 $(document).ready(function () {
+    lista_categorias();
     lista_clientes_sucursal();
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    var yyyy = today.getFullYear();
 
+    today = yyyy + '-' + mm + '-' + dd;
+
+    $("#fecha").val(today);
+
+    $("#fecha").datetimepicker({
+        format: "Y-m-d",
+        timepicker: false
+    });
+    $.datetimepicker.setLocale('es');
+    $("#id_cliente").select2();
+
+    lista_sucursales();
     lista_formas_pagos();
-
+    lista_tipos_clientes();
+    $("#id_tipo_cliente").on("change", function () {
+        if ($(this).val() == 1) {
+            $("#div-tipo-cliente").attr("hidden", false);
+        } else {
+            $("#div-tipo-cliente").attr("hidden", true);
+        }
+    });
     $("#guardar_venta").on("click", function () {
         console.log("CLIC EN VENTA");
         console.log(codigos_carro);
@@ -37,41 +60,7 @@ $(document).ready(function () {
             }
         });
     });
-    limpiar_campos();
-    $("#producto").autocomplete({
-        source: function (request, response) {
-            $.ajax({
-                url: "ws/service.php?parAccion=autocomplete",
-                type: "GET",
-                dataType: "json",
-                data: {
-                    search: request.term
-                },
-                success: function (data) {
-                    response($.map(data, function (item) {
-                        $("#add-item").attr("onclick", `anadirItem(${item.id}, '${item.producto}', '${parseFloat(item.precio_unitario).toFixed(2)}')`);
-                        //$("#cantidad").focus();
-                        return {
-                            label: item.producto + " S/ " + item.precio_unitario,
-                            value: item.producto + " S/ " + item.precio_unitario,
-                            id: item.id
-                        }
-                    }))
-                }
-            });
-        }
-    });
-    $("#cantidad").on("keydown", function () {
-        if (event.key === "Enter" || event.keyCode === 13) {
-            $("#add-item").click();
-        }
-    });
 });
-function limpiar_campos() {
-    $("#producto").focus();
-    $("#producto").val("");
-    $("#cantidad").val("");
-}
 function limpiar_formulario() {
     $(".form-control").val('');
     $("select").val(0);
@@ -81,7 +70,6 @@ function limpiar_formulario() {
     cantidades = [];
     precios = [];
     calcularTodo();
-    $("#producto").focus();
 }
 function lista_formas_pagos() {
     $.post("ws/service.php?parAccion=lista_formas_pagos", {
@@ -99,15 +87,33 @@ function lista_clientes_sucursal() {
         $("#id_cliente").empty();
         $("#id_cliente").append(`<option value="0">--SELECCIONE--</option>`);
         $.each(obj, function (index, val) {
-            if (val.dni == '00000000') {
-                id_cliente_general = val.id;
-            }
             $("#id_cliente").append(`<option value="${val.id}">${val.dni} - ${val.nombres}</option>`);
         });
-
-        $("#id_cliente").select2();
-        console.log(id_cliente_general);
-        $("#id_cliente").val(id_cliente_general).trigger('change');
+    });
+}
+function lista_categorias() {
+    $.post("ws/service.php?parAccion=lista_categorias", function (response) {
+        var obj = JSON.parse(response);
+        $.each(obj, function (index, val) {
+            $("#div-categorias").append(`<div class="col-xl-2 col-md-4 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body pointer" onclick="lista_productos(${val.id});">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    ${val.categoria}
+                                </div>
+                                <!--<div class="h5 mb-0 font-weight-bold text-gray-800">$40,000</div>-->
+                            </div>
+                            <div class="col-auto">
+                                <!--<i class="fas fa-calendar fa-2x text-gray-300"></i>-->
+                                <i class="fas fa-chevron-right fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>`);
+        });
     });
 }
 function lista_productos(id_categoria) {
@@ -131,22 +137,17 @@ function lista_productos(id_categoria) {
 }
 
 function anadirItem(id, nombre, precio) {
-    console.log(nombre);
-    console.log(precio);
     var flag = 0;
     var iterador = 0;
-    var item_encontrado = 0;
     for (var i = 0; i < codigos_carro.length; i++) {
         if (id == codigos_carro[i]) {
             flag = 1;
             iterador = i;
-            item_encontrado = i;
         }
     }
-    let total_item = precio * $("#cantidad").val();
     if (flag == 0) {
         codigos_carro.push(id);
-        cantidades.push($("#cantidad").val());
+        cantidades.push(1);
         precios.push(precio);
 
         $(".order-empty").hide();
@@ -155,17 +156,17 @@ function anadirItem(id, nombre, precio) {
                 <table class="table mb-0">
                     <tr>
                         <td width="10%">
-                            <strong id="cant${id}">${$("#cantidad").val()}</strong>
+                            <strong id="cant${id}">1</strong>
                         </td>
                         <td width="30%">
                             <p style="font-weight: bold; display: block; font-size: 13px; text-align: left;" class="w-100 mb-0">${nombre}</p>
                             <p class="w-100 mt-0" style="font-size: 13px; text-align: left;"> <span class="badge badge-primary">S/ ${precio}</span></p>
                         </td>
                         <td width="30%">
-                            <strong>S/ </strong><strong id="precio${id}">${total_item}</strong>
+                            <strong>S/ </strong><strong id="precio${id}">${precio}</strong>
                         </td>
                         <td width="30%">
-                            <span class="btn btn-danger btn-sm d-block" onclick="quitar_carro(${id},${total_item})"><i class="fa fa-trash"></i></span>
+                            <span class="btn btn-danger btn-sm d-block" onclick="quitar_carro(${id},${precio})"><i class="fa fa-trash"></i></span>
                         </td>
                     </tr>
                 </table>
@@ -184,21 +185,32 @@ function anadirItem(id, nombre, precio) {
         `);
     }
     else {
-        var cant_actual = parseInt(cantidades[item_encontrado]) + parseInt($("#cantidad").val());
-        var precio_nuevo = precio * (cant_actual);
-        $("#cant" + id).text(cant_actual);
+        var cant_actual = parseInt($("#cant" + id).text());
+        var precio_nuevo = precio * (cant_actual + 1);
+        $("#cant" + id).text(cant_actual + 1);
         $("#precio" + id).text(redondear(precio_nuevo, 2));
-
-        cantidades[item_encontrado] = cant_actual;
-        precios[item_encontrado] = precio;
+        cantidades[iterador]++;
+        precios.push(precio);
     }
     calcularTodo();
 
-    limpiar_campos();
+    $(".la_cantidad").keyup(function () {
+        var id_d = $(this).attr("id");
+        var cant_d = $(this).val();
 
-    console.log(cantidades);
-    console.log(precios);
-    console.log(codigos_carro);
+        $("#precio" + id_d.substring(4, id_d.length)).html(cant_d * precio)
+
+        calcularTodo();
+    });
+
+    $(".la_cantidad").on("change", function () {
+        var id_d = $(this).attr("id");
+        var cant_d = $(this).val();
+
+        $("#precio" + id_d.substring(4, id_d.length)).html(cant_d * precio)
+
+        calcularTodo();
+    });
 }
 function calcularTodo() {
     var total = 0;
@@ -248,4 +260,49 @@ function quitar_carro(id, precio) {
         cantidades.splice(iterador, 1);
     }
     calcularTodo();
+}
+function nuevo_cliente() {
+    $("#clienteModalLabel").text("Nuevo Cliente");
+    $("#btn-accion-cliente").text("Guardar");
+    $("#btn-accion-cliente").attr("onclick", "insertar_cliente();");
+}
+function insertar_cliente() {
+    $.post("ws/service.php?parAccion=insertar_cliente", {
+        nombres: $("#nombres").val(),
+        dni: $("#dni").val(),
+        id_sucursal: $("#id_sucursal").val(),
+        grado: $("#grado").val(),
+        seccion: $("#seccion").val(),
+        id_tipo_cliente: $("#id_tipo_cliente").val(),
+        padre: $("#padre").val(),
+        celular: $("#celular").val(),
+        saldo: $("#saldo").val(),
+        correo: $("#correo").val(),
+    }, function (response) {
+        var obj = JSON.parse(response);
+        if (obj.Result == "OK") {
+            alertify.success("Se agregó correctamente.");
+            lista_clientes_sucursal();
+            limpiar_formulario();
+        } else {
+            alertify.error("Algo ha salido terriblemente mal.");
+        }
+    });
+}
+function lista_tipos_clientes() {
+    $.post("ws/service.php?parAccion=lista_tipos_clientes", function (response) {
+        var obj = JSON.parse(response);
+        $.each(obj, function (index, val) {
+            $("#id_tipo_cliente").append(`<option value="${val.id}">${val.tipo_cliente}</option>`);
+        });
+    });
+}
+function lista_sucursales() {
+    $.post("ws/service.php?parAccion=lista_sucursales", function (response) {
+        var obj = JSON.parse(response);
+        $("#id_sucursal").append(`<option value="0">--SELECCIONE--</option>`);
+        $.each(obj, function (index, val) {
+            $("#id_sucursal").append(`<option value="${val.id}">${val.sucursal}</option>`);
+        });
+    });
 }
