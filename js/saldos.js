@@ -11,6 +11,7 @@ function lista_clientes() {
     });
 }
 function buscar_saldos() {
+    $('#tabla-saldos').DataTable().clear().destroy();
     $.post("ws/service.php?parAccion=buscar_saldos", {
         id_cliente: $("#id_cliente").val()
     }, function (response) {
@@ -25,6 +26,22 @@ function buscar_saldos() {
                     <td></td>
                 </tr>
             `);
+        });
+        $("#tabla-saldos").DataTable({
+            scrollX: true,       // Habilita el desplazamiento horizontal
+            autoWidth: false,    // Evita que DataTables ajuste el ancho automáticamente
+            responsive: true,    // Permite que la tabla se adapte
+            searching: true,     // Habilita el buscador
+            paging: true,        // Habilita paginación
+            ordering: true,      // Habilita ordenación
+            info: true,
+            dom: 'Brftip',
+            "language": {
+                "url": "./js/Spanish.json"
+            },
+            buttons: [
+                'excel'
+            ]
         });
     });
 }

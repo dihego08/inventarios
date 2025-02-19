@@ -14,16 +14,22 @@ function lista_ventas() {
                 <td>${$.trim(val.nombres)}</td>
                 <td>${$.trim(val.sucursal)}</td>
                 <td>${$.trim(val.monto)}</td>
+                <td>${$.trim(val.forma_pago)}</td>
                 <td>
-                    <!--<span class="btn btn-outline-warning btn-sm d-block mb-1" data-toggle="modal" data-target="#formulario" onclick="editar_producto(${val.id});"><i class="fa fa-edit"></i></span>-->
                     <span class="btn btn-outline-info btn-sm d-block mb-1" data-toggle="modal" data-target="#formulario" onclick="detalle_venta(${val.id});"><i class="fa fa-eye"></i></span>
                     <span  class="btn btn-outline-danger btn-sm d-block" onclick="eliminar_venta(${val.id});"><i class="fa fa-trash"></i></span>
                 </td>
-                </tr>`);
+            </tr>`);
         });
         $("#tabla-ventas").DataTable({
-            dom: 'Brtip',
-            retrieve: true,
+            scrollX: true,       // Habilita el desplazamiento horizontal
+            autoWidth: false,    // Evita que DataTables ajuste el ancho automáticamente
+            responsive: true,    // Permite que la tabla se adapte
+            searching: true,     // Habilita el buscador
+            paging: true,        // Habilita paginación
+            ordering: true,      // Habilita ordenación
+            info: true,
+            dom: 'Brftip',
             "language": {
                 "url": "./js/Spanish.json"
             },

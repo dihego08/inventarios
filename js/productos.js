@@ -28,8 +28,14 @@ function lista_productos() {
                 </tr>`);
         });
         $("#tabla-productos").DataTable({
-            dom: 'Brtip',
-            retrieve: true,
+            scrollX: true,       // Habilita el desplazamiento horizontal
+            autoWidth: false,    // Evita que DataTables ajuste el ancho automáticamente
+            responsive: true,    // Permite que la tabla se adapte
+            searching: true,     // Habilita el buscador
+            paging: true,        // Habilita paginación
+            ordering: true,      // Habilita ordenación
+            info: true,
+            dom: 'Brftip',
             "language": {
                 "url": "./js/Spanish.json"
             },

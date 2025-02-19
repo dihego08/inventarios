@@ -289,7 +289,7 @@ switch ($accion) {
         echo json_encode(array("Result" => "OK"));
         break;
     case 'lista_ventas':
-        $sql = "SELECT v.*, c.nombres, s.sucursal, DATE(DATE_SUB(v.fecha_creacion, INTERVAL 5 HOUR)) as fecha FROM ventas AS v LEFT JOIN clientes AS c ON c.id = v.id_cliente LEFT JOIN sucursales AS s ON s.id = v.id_sucursal WHERE v.estado = 0";
+        $sql = "SELECT v.*, c.nombres, s.sucursal, DATE(DATE_SUB(v.fecha_creacion, INTERVAL 5 HOUR)) as fecha, f.forma_pago FROM ventas AS v LEFT JOIN clientes AS c ON c.id = v.id_cliente LEFT JOIN sucursales AS s ON s.id = v.id_sucursal LEFT JOIN formas_pagos AS f ON f.id = v.id_forma_pago WHERE v.estado = 0";
         echo $mono->run_query($sql);
         break;
     case 'eliminar_venta':
@@ -509,6 +509,11 @@ switch ($accion) {
         break;
     case 'autocomplete':
         $sql = 'SELECT p.*, ps.precio_unitario, ps.stock FROM productos p JOIN producto_sucursal ps ON p.id = ps.id_producto AND ps.id_sucursal = ' . $_SESSION['id_sucursal'] . ' WHERE p.producto LIKE "%' . $_GET['search'] . '%"';
+        echo $mono->run_query($sql);
+        break;
+    case 'reporte_fecha':
+        $sql = "SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND DATE(DATE_SUB(fecha_creacion, INTERVAL 5 HOUR)) = '" . $_POST['fecha'] . "' UNION ALL SELECT COALESCE(SUM(monto), 0) AS cant FROM gastos WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND DATE(DATE_SUB(fecha_creacion, INTERVAL 5 HOUR)) = '" . $_POST['fecha'] . "'";
+        //echo $sql;
         echo $mono->run_query($sql);
         break;
     default:
