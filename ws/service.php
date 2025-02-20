@@ -512,7 +512,11 @@ switch ($accion) {
         echo $mono->run_query($sql);
         break;
     case 'reporte_fecha':
-        $sql = "SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND DATE(DATE_SUB(fecha_creacion, INTERVAL 5 HOUR)) = '" . $_POST['fecha'] . "' UNION ALL SELECT COALESCE(SUM(monto), 0) AS cant FROM gastos WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND DATE(DATE_SUB(fecha_creacion, INTERVAL 5 HOUR)) = '" . $_POST['fecha'] . "'";
+        $sql = "SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND DATE(DATE_SUB(fecha_creacion, INTERVAL 5 HOUR)) = '" . $_POST['fecha'] . "' UNION ALL SELECT COALESCE(SUM(monto), 0) AS cant FROM gastos WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND DATE(DATE_SUB(fecha_creacion, INTERVAL 5 HOUR)) = '" . $_POST['fecha'] . "'
+        UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND DATE(DATE_SUB(fecha_creacion, INTERVAL 5 HOUR)) = '" . $_POST['fecha'] . "' AND id_forma_pago = 3
+        UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND DATE(DATE_SUB(fecha_creacion, INTERVAL 5 HOUR)) = '" . $_POST['fecha'] . "' AND id_forma_pago = 4
+        UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND DATE(DATE_SUB(fecha_creacion, INTERVAL 5 HOUR)) = '" . $_POST['fecha'] . "' AND id_forma_pago = 1
+        UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND DATE(DATE_SUB(fecha_creacion, INTERVAL 5 HOUR)) = '" . $_POST['fecha'] . "' AND id_forma_pago = 2;";
         //echo $sql;
         echo $mono->run_query($sql);
         break;

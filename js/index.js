@@ -33,5 +33,10 @@ function reporte_fecha() {
         var obj = JSON.parse(response);
         $("#ventas_ahora").text("S/ " + obj[0].cant);
         $("#gastos_ahora").text("S/ " + $.trim(obj[1].cant));
+
+        $("#yape_ahora").text("S/ " + $.trim(obj[2].cant));
+        $("#plin_ahora").text("S/ " + $.trim(obj[3].cant));
+        $("#efectivo_ahora").text("S/ " + $.trim(obj[4].cant));
+        $("#saldo_ahora").text("S/ " + $.trim(obj[5].cant));
     });
 }

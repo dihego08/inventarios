@@ -9,7 +9,7 @@ function iniciar_sesion() {
         var obj = JSON.parse(response);
 
         if (obj.Result == "OK") {
-            window.location.href = "sucursales.html";
+            window.location.href = "index.html";
         } else {
             bootbox.alert({
                 message: "Usuario o Contraseña Incorrectos",
