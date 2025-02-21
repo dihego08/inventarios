@@ -25,6 +25,8 @@
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.min.css"
+        rel="stylesheet" />
 
 </head>
 
@@ -118,6 +120,7 @@
                 </a>
                 <div id="collapsePOS" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                     <div class="bg-brown py-2 collapse-inner rounded">
+                        <a class="collapse-item" href="abastecer_manual.html">Abastecer Manual</a>
                         <a class="collapse-item" href="abastecer.html">Abastecer Sucursal</a>
                         <a class="collapse-item" href="stock.html">Stock Actual</a>
                         <a class="collapse-item" href="movimientos.html">Movimientos</a>
@@ -141,7 +144,8 @@
             <div id="content">
 
                 <!-- Topbar -->
-                <nav class="navbar navbar-expand navbar-light bg-brown-alt topbar mb-4 static-top shadow" style="box-shadow: 0px 2px 8px 2px #313131 !important;">
+                <nav class="navbar navbar-expand navbar-light bg-brown-alt topbar mb-4 static-top shadow"
+                    style="box-shadow: 0px 2px 8px 2px #313131 !important;">
 
                     <!-- Sidebar Toggle (Topbar) -->
                     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
@@ -191,15 +195,29 @@
                     <h1 class="h3 mb-4 text-gray-800">Lista de Saldos por Cliente</h1>
 
                     <div class="row">
-                        <div class="col-md-10">
+                        <div class="col-md-4">
                             <label for="">Seleccionar Alumno</label>
                         </div>
+                        <div class="col-md-3">
+                            <label for="">Fecha Desde</label>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="">Fecha Hasta</label>
+                        </div>
                         <div class="col-md-2"></div>
-                        <div class="col-md-10">
+                        <div class="col-md-4">
                             <select name="" id="id_cliente" class="form-control">
                                 <option value="0">--SELECCIONE--</option>
                             </select>
                         </div>
+
+                        <div class="col-md-3">
+                            <input type="text" class="form-control fecha" id="fecha_desde">
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" class="form-control fecha" id="fecha_hasta">
+                        </div>
+
                         <div class="col-md-1">
                             <span class="btn btn-outline-primary btn-rounded" onclick="buscar_saldos();"><i
                                     class="fa fa-search"></i> </span>
@@ -295,6 +313,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/jquery.datetimepicker.full.min.js"></script>
     <script src="js/util.js"></script>
     <script src="js/saldos.js"></script>
 </body>

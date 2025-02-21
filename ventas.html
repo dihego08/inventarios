@@ -133,6 +133,7 @@
                 </a>
                 <div id="collapseStock" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                     <div class="bg-brown py-2 collapse-inner rounded">
+                        <a class="collapse-item" href="abastecer_manual.html">Abastecer Manual</a>
                         <a class="collapse-item" href="abastecer.html">Abastecer Sucursal</a>
                         <a class="collapse-item" href="stock.html">Stock Actual</a>
                         <a class="collapse-item" href="movimientos.html">Movimientos</a>
@@ -208,6 +209,27 @@
                     <h1 class="h3 mb-4 text-gray-800">Lista de Ventas</h1>
 
                     <div class="row">
+                        <div class="row w-100">
+                            <div class="col-md-5">
+                                <label for="">Fecha Desde</label>
+                            </div>
+                            <div class="col-md-5">
+                                <label for="">Fecha Hasta</label>
+                            </div>
+                            <div class="col-md-2"></div>
+                            <div class="col-md-5">
+                                <input type="text" class="form-control fecha" id="fecha_desde">
+                            </div>
+                            <div class="col-md-5">
+                                <input type="text" class="form-control fecha" id="fecha_hasta">
+                            </div>
+                            <div class="col-md-2">
+                                <span class="btn btn-outline-success" onclick="lista_ventas();">
+                                    <i class="fa fa-search"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <hr class="w-100">
                         <div class="table-response w-100">
                             <table class="table table-bordered table-striped" id="tabla-ventas">
                                 <thead>

@@ -1,6 +1,29 @@
 let current = null;
 $(document).ready(function () {
     lista_clientes();
+
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    var yyyy = today.getFullYear();
+
+    today = yyyy + '-' + mm + '-' + dd;
+    $("#fecha_hasta").val(today);
+    today = new Date();
+    today.setMonth(today.getMonth() - 1); // Restar 1 mes
+
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); // Enero es 0
+    var yyyy = today.getFullYear();
+    let last_month = yyyy + '-' + mm + '-' + dd;
+
+    $("#fecha_desde").val(last_month);
+
+    $(".fecha").datetimepicker({
+        format: "Y-m-d",
+        timepicker: false
+    });
+    $.datetimepicker.setLocale('es');
 });
 function lista_clientes() {
     $.post("ws/service.php?parAccion=lista_clientes", function (response) {
@@ -13,7 +36,9 @@ function lista_clientes() {
 function buscar_saldos() {
     $('#tabla-saldos').DataTable().clear().destroy();
     $.post("ws/service.php?parAccion=buscar_saldos", {
-        id_cliente: $("#id_cliente").val()
+        id_cliente: $("#id_cliente").val(),
+        fecha_desde: $("#fecha_desde").val(),
+        fecha_hasta: $("#fecha_hasta").val(),
     }, function (response) {
         var obj = JSON.parse(response);
         $("#tabla-saldos").find("tbody").empty();

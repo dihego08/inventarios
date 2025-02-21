@@ -1,10 +1,36 @@
 let current = null;
 $(document).ready(function () {
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    var yyyy = today.getFullYear();
+
+    today = yyyy + '-' + mm + '-' + dd;
+    $("#fecha_hasta").val(today);
+    today = new Date();
+    today.setMonth(today.getMonth() - 1); // Restar 1 mes
+
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); // Enero es 0
+    var yyyy = today.getFullYear();
+    let last_month = yyyy + '-' + mm + '-' + dd;
+
+    $("#fecha_desde").val(last_month);
+
     lista_ventas();
+
+    $(".fecha").datetimepicker({
+        format: "Y-m-d",
+        timepicker: false
+    });
+    $.datetimepicker.setLocale('es');
 });
 function lista_ventas() {
     $('#tabla-ventas').DataTable().clear().destroy();
-    $.post("ws/service.php?parAccion=lista_ventas", function (response) {
+    $.post("ws/service.php?parAccion=lista_ventas", {
+        fecha_desde: $("#fecha_desde").val(),
+        fecha_hasta: $("#fecha_hasta").val(),
+    }, function (response) {
         var obj = JSON.parse(response);
         $("#tabla-ventas").find("tbody").empty();
         $.each(obj, function (index, val) {

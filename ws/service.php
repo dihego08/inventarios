@@ -289,7 +289,7 @@ switch ($accion) {
         echo json_encode(array("Result" => "OK"));
         break;
     case 'lista_ventas':
-        $sql = "SELECT v.*, c.nombres, s.sucursal, DATE(DATE_SUB(v.fecha_creacion, INTERVAL 5 HOUR)) as fecha, f.forma_pago FROM ventas AS v LEFT JOIN clientes AS c ON c.id = v.id_cliente LEFT JOIN sucursales AS s ON s.id = v.id_sucursal LEFT JOIN formas_pagos AS f ON f.id = v.id_forma_pago WHERE v.estado = 0";
+        $sql = "SELECT v.*, c.nombres, s.sucursal, DATE(DATE_SUB(v.fecha_creacion, INTERVAL 5 HOUR)) as fecha, f.forma_pago FROM ventas AS v LEFT JOIN clientes AS c ON c.id = v.id_cliente LEFT JOIN sucursales AS s ON s.id = v.id_sucursal LEFT JOIN formas_pagos AS f ON f.id = v.id_forma_pago WHERE v.estado = 0 AND DATE(DATE_SUB(v.fecha_creacion, INTERVAL 5 HOUR)) BETWEEN '" . $_POST['fecha_desde'] . "' AND '" . $_POST['fecha_hasta'] . "'";
         echo $mono->run_query($sql);
         break;
     case 'eliminar_venta':
@@ -415,9 +415,8 @@ switch ($accion) {
         }
         break;
 
-
     case 'buscar_saldos':
-        $sql = "SELECT c.nombres, r.id, r.monto, date(r.fecha_creacion) fecha FROM clientes AS c JOIN recargas AS r ON r.id_cliente = c.id AND c.id = " . $_POST['id_cliente'];
+        $sql = "SELECT c.nombres, r.id, r.monto, DATE(DATE_SUB(r.fecha_creacion, INTERVAL 5 HOUR)) as fecha FROM clientes AS c JOIN recargas AS r ON r.id_cliente = c.id AND c.id = " . $_POST['id_cliente']." WHERE DATE(DATE_SUB(r.fecha_creacion, INTERVAL 5 HOUR)) BETWEEN '" . $_POST['fecha_desde'] . "' AND '" . $_POST['fecha_hasta'] . "'";
         echo $mono->run_query($sql);
         break;
     case "insertar_saldo":
@@ -470,19 +469,8 @@ switch ($accion) {
 
 
     case 'lista_gastos':
-        $data = json_decode($mono->select_all("gastos", true));
-        $values = array();
-        foreach ($data as $key) {
-            $sucursal = json_decode($mono->select_one("sucursales", array("id" => $key->id_sucursal)));
-            if (empty($sucursal) || is_null($sucursal)) {
-                $key->sucursal = "";
-            } else {
-                $key->sucursal = $sucursal->sucursal;
-            }
-            unset($key->pass);
-            $values[] = $key;
-        }
-        echo json_encode($values);
+        $sql = "SELECT g.*, s.sucursal, DATE(DATE_SUB(g.fecha_creacion, INTERVAL 5 HOUR)) as fecha FROM gastos AS g LEFT JOIN sucursales AS s ON s.id = g.id_sucursal WHERE DATE(DATE_SUB(g.fecha_creacion, INTERVAL 5 HOUR)) BETWEEN '" . $_POST['fecha_desde'] . "' AND '" . $_POST['fecha_hasta'] . "'";
+        echo $mono->run_query($sql);
         break;
     case 'insertar_gasto':
         $_POST['id_usuario_creacion'] = $_SESSION['id'];
