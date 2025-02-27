@@ -1,5 +1,27 @@
 $(document).ready(function () {
     lista_sucursales();
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    var yyyy = today.getFullYear();
+
+    today = yyyy + '-' + mm + '-' + dd;
+    $("#fecha_hasta").val(today);
+    today = new Date();
+    today.setMonth(today.getMonth() - 1); // Restar 1 mes
+
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); // Enero es 0
+    var yyyy = today.getFullYear();
+    let last_month = yyyy + '-' + mm + '-' + dd;
+
+    $("#fecha_desde").val(last_month);
+
+    $(".fecha").datetimepicker({
+        format: "Y-m-d",
+        timepicker: false
+    });
+    $.datetimepicker.setLocale('es');
 });
 function lista_sucursales() {
     $.post("ws/service.php?parAccion=lista_sucursales", function (response) {
@@ -9,58 +31,13 @@ function lista_sucursales() {
         });
     });
 }
-function _(el) {
-    return document.getElementById(el);
-}
-function progressHandler(event) {
-    _("loaded_n_total").innerHTML = "Uploaded " + event.loaded + " bytes of " + event.total;
-    var percent = (event.loaded / event.total) * 100;
-    _("progressBar").value = Math.round(percent);
-}
-function completeHandler(event) {
-    var obj = JSON.parse(event.target.response);
-    if (obj.Result == "OK") {
-        $("#tabla-abastecer").find("tbody").empty();
-        if (obj.data.length > 0) {
-            $.each(obj.data, function (index, val) {
-                if (index > 0) {
-                    $("#tabla-abastecer").find("tbody").append(`<tr>
-                <td>${val[0]}</td>
-                <td>${val[1]}</td>
-                <td>${val[2]}</td>
-                <td>${parseFloat(val[3]).toFixed(2)}</td>
-            </tr>`);
-                }
-            });
-            $("#div-btn-guardar").show();
-        }
-        alertify.success("El archivo se cargo correctamente.");
-    } else {
-        $("#div-btn-guardar").hide();
-
-        alertify.notify("Algo ha salido mal.</strong> " + obj.ERROR, "custom-black", 4, function () { });
-    }
-
-
-    _("progressBar").value = 0;
-}
-function errorHandler(event) {
-    _("status").innerHTML = "Upload Failed";
-}
-function abortHandler(event) {
-    _("status").innerHTML = "Upload Aborted";
-}
-function readURL(input) {
-    if (input.files && input.files[0]) {
-        var file = input.files[0]; // Obtener el archivo
-        console.log(file.name); // Mostrar el nombre del archivo
-        $("#archivo_seleccionado").text(file.name);
-    }
-}
 
 function ver_movimientos() {
+    $('#tabla-movimientos').DataTable().clear().destroy();
     $.post("ws/service.php?parAccion=ver_movimientos", {
-        id_sucursal: $("#id_sucursal").val()
+        id_sucursal: $("#id_sucursal").val(),
+        fecha_desde: $("#fecha_desde").val(),
+        fecha_hasta: $("#fecha_hasta").val(),
     }, function (response) {
         var obj = JSON.parse(response);
         $("#tabla-movimientos").find("tbody").empty();
@@ -81,32 +58,21 @@ function ver_movimientos() {
                 <td>${val.fecha}</td>
             </tr>`);
         });
+        $("#tabla-movimientos").DataTable({
+            scrollX: true,       // Habilita el desplazamiento horizontal
+            autoWidth: false,    // Evita que DataTables ajuste el ancho automáticamente
+            responsive: true,    // Permite que la tabla se adapte
+            searching: true,     // Habilita el buscador
+            paging: true,        // Habilita paginación
+            ordering: true,      // Habilita ordenación
+            info: true,
+            dom: 'Brftip',
+            "language": {
+                "url": "./js/Spanish.json"
+            },
+            buttons: [
+                'excel'
+            ]
+        });
     });
-}
-
-function guardar_abastecimiento() {
-    var formdata = new FormData();
-    if ($("#id_sucursal").val() == 0) {
-        bootbox.alert({
-            message: "Seleccionar una Sucursal",
-            size: 'small'
-        });
-    } else if ($("#archivo_seleccionado").text() == "") {
-        bootbox.alert({
-            message: "Debe Cargar un Archivo",
-            size: 'small'
-        });
-    } else {
-        var file = _("archivo").files[0];
-        formdata.append("archivo", file);
-        formdata.append("id_sucursal", $("#id_sucursal").val());
-
-        var ajax = new XMLHttpRequest();
-        ajax.upload.addEventListener("progress", progressHandler, false);
-        ajax.addEventListener("load", completeHandler, false);
-        ajax.addEventListener("error", errorHandler, false);
-        ajax.addEventListener("abort", abortHandler, false);
-        ajax.open("POST", "ws/service.php?parAccion=guardar_abastecimiento");
-        ajax.send(formdata);
-    }
 }

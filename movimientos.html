@@ -23,7 +23,11 @@
 
     <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.min.css"
+        rel="stylesheet" />
 
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
 </head>
 
 <body id="page-top">
@@ -70,7 +74,6 @@
                         <a class="collapse-item" href="clientes.html">Clientes</a>
                         <a class="collapse-item" href="productos.html">Productos</a>
                         <a class="collapse-item" href="categorias.html">Categorias</a>
-                        <a class="collapse-item" href="saldos.html">Saldos</a>
                         <a class="collapse-item" href="gastos.html">Gastos</a>
                     </div>
                 </div>
@@ -192,14 +195,31 @@
 
                     <div class="row">
                         <div class="col-md-12 mb-3 form-row">
-                            <div class="col-md-11">
-                                <label for="id_sucursal">Seleccionar Sucursal</label>
+
+                            <div class="col-md-4">
+                                <label for="">Seleccionar Sucursal</label>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="">Fecha Desde</label>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="">Fecha Hasta</label>
+                            </div>
+                            <div class="col-md-2"></div>
+                            <div class="col-md-4">
                                 <select name="" id="id_sucursal" class="form-control">
                                     <option value="0">--SELECCIONE--</option>
                                 </select>
                             </div>
-                            <div class="col-md-1">
-                                <label for="" class="w-100"></label>
+
+                            <div class="col-md-3">
+                                <input type="text" class="form-control fecha" id="fecha_desde">
+                            </div>
+                            <div class="col-md-3">
+                                <input type="text" class="form-control fecha" id="fecha_hasta">
+                            </div>
+
+                            <div class="col-md-2">
                                 <span class="btn-outline-success btn btn-sm" onclick="ver_movimientos();">
                                     <i class="fas fa-search"></i> Ver Movimientos</span>
                             </div>
@@ -290,6 +310,16 @@
     <!-- Default theme -->
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/themes/default.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/5.5.2/bootbox.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/jquery.datetimepicker.full.min.js"></script>
+    <!-- DataTables 1.13.x -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+    <!-- Extensión Buttons compatible con DataTables 1.x -->
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
     <script src="js/util.js"></script>
     <script src="js/movimientos.js"></script>
 </body>

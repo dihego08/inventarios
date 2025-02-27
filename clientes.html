@@ -23,7 +23,20 @@
 
     <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.min.css"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
+    <style>
+        .modal {
+            z-index: 1050;
+        }
 
+        .modal-backdrop {
+            z-index: 1040;
+            /* Fondo del modal */
+        }
+    </style>
 </head>
 
 <body id="page-top">
@@ -71,7 +84,6 @@
                         <a class="collapse-item active" href="clientes.html">Clientes</a>
                         <a class="collapse-item" href="productos.html">Productos</a>
                         <a class="collapse-item" href="categorias.html">Categorias</a>
-                        <a class="collapse-item" href="saldos.html">Saldos</a>
                         <a class="collapse-item" href="gastos.html">Gastos</a>
                     </div>
                 </div>
@@ -87,8 +99,8 @@
 
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
-                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapsePOS"
-                    aria-expanded="true" aria-controls="collapsePOS">
+                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapsePOS" aria-expanded="true"
+                    aria-controls="collapsePOS">
                     <i class="fas fa-fw fa-folder"></i>
                     <span>Ventas</span>
                 </a>
@@ -109,8 +121,8 @@
 
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
-                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseStock"
-                    aria-expanded="true" aria-controls="collapseStock">
+                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseStock" aria-expanded="true"
+                    aria-controls="collapseStock">
                     <i class="fas fa-fw fa-folder"></i>
                     <span>Stocks</span>
                 </a>
@@ -142,7 +154,8 @@
             <div id="content">
 
                 <!-- Topbar -->
-                <nav class="navbar navbar-expand navbar-light bg-brown-alt topbar mb-4 static-top shadow" style="box-shadow: 0px 2px 8px 2px #313131 !important;">
+                <nav class="navbar navbar-expand navbar-light bg-brown-alt topbar mb-4 static-top shadow"
+                    style="box-shadow: 0px 2px 8px 2px #313131 !important;">
 
                     <!-- Sidebar Toggle (Topbar) -->
                     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
@@ -239,6 +252,81 @@
     </a>
 
     <!-- Logout Modal-->
+    <div class="modal fade" id="formulario_detalle_venta" tabindex="-1" role="dialog"
+        aria-labelledby="formulario_detalle_ventaModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalle de Venta</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <table class="table" id="tabla-detalle-venta">
+                            <thead>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Precio</th>
+                                <th>Total</th>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="movimientos" tabindex="-1" role="dialog" aria-labelledby="movimientosModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document" style="max-width: 50%;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Movimientos</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <input type="text" class="form-control fecha" id="fecha_desde">
+                        </div>
+                        <div class="col-md-5">
+                            <input type="text" class="form-control fecha" id="fecha_hasta">
+                        </div>
+
+                        <div class="col-md-2">
+                            <span class="btn btn-outline-primary btn-rounded" onclick="buscar_saldos();"><i
+                                    class="fa fa-search"></i> </span>
+                        </div>
+                        <div class="table-response w-100 mt-3">
+                            <table class="table table-bordered table-striped" id="tabla-saldos">
+                                <thead>
+                                    <th>Tipo</th>
+                                    <th>Monto</th>
+                                    <th>Fecha</th>
+                                    <th width="5%"></th>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <div class="modal fade" id="formulario" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
         aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -322,7 +410,16 @@
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/alertify.min.css" />
     <!-- Default theme -->
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/themes/default.min.css" />
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/jquery.datetimepicker.full.min.js"></script>
+    <!-- DataTables 1.13.x -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
+    <!-- Extensión Buttons compatible con DataTables 1.x -->
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
     <script src="js/util.js"></script>
     <script src="js/clientes.js"></script>
 </body>

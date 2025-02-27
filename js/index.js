@@ -19,7 +19,7 @@ $(document).ready(function () {
 function lista_sucursales() {
     $.post("ws/service.php?parAccion=lista_sucursales", function (response) {
         var obj = JSON.parse(response);
-        $("#id_sucursal").append(`<option value="0">--SELECCIONAR--</option>`);
+        $("#id_sucursal").append(`<option value="0">--TODOS--</option>`);
         $.each(obj, function (index, val) {
             $("#id_sucursal").append(`<option value="${val.id}">${val.sucursal}</option>`);
         });
