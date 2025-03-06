@@ -285,7 +285,7 @@
 
     <div class="modal fade" id="movimientos" tabindex="-1" role="dialog" aria-labelledby="movimientosModalLabel"
         aria-hidden="true">
-        <div class="modal-dialog" role="document" style="max-width: 50%;">
+        <div class="modal-dialog" role="document" style="max-width: 75%;">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Movimientos</h5>
@@ -294,7 +294,20 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div class="row">
+                    <div class="form-row">
+                        <div class="col-md-11">
+                            <label for="monto">Monto a Recargar</label>
+                        </div>
+                        <div class="col-md-1">
+                        </div>
+                        <div class="col-md-11">
+                            <input type="text" class="form-control" id="monto">
+                        </div>
+                        <div class="col-md-1">
+                            <span class="btn btn-outline-success btn-rounded" id="btn-accion-saldo"><i
+                                    class="fa fa-plus"></i> </span>
+                        </div>
+                        <hr class="w-100">
                         <div class="col-md-5">
                             <input type="text" class="form-control fecha" id="fecha_desde">
                         </div>
@@ -302,7 +315,7 @@
                             <input type="text" class="form-control fecha" id="fecha_hasta">
                         </div>
 
-                        <div class="col-md-2">
+                        <div class="col-md-1">
                             <span class="btn btn-outline-primary btn-rounded" onclick="buscar_saldos();"><i
                                     class="fa fa-search"></i> </span>
                         </div>

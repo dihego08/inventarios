@@ -51,10 +51,25 @@ function lista_sucursales() {
             $("#id_sucursal").append(`<option value="${val.id}">${val.sucursal}</option>`);
         });
     });
+}function insertar_saldo(id) {
+    $.post("ws/service.php?parAccion=insertar_saldo", {
+        id_cliente: id,
+        monto: $("#monto").val()
+    }, function (response) {
+        var obj = JSON.parse(response);
+        if (obj.Result == "OK") {
+            alertify.success("Se agregó correctamente.");
+            buscar_saldos();
+            limpiar_formulario();
+        } else {
+            alertify.error("Algo ha salido terriblemente mal.");
+        }
+    });
 }
 function abrir_movimientos(id) {
     id_selected = id;
     buscar_saldos();
+    $("#btn-accion-saldo").attr("onclick", "insertar_saldo(" + id + ");");
 }
 function detalle_venta(id) {
     $('#formulario_detalle_venta').on('shown.bs.modal', function () {
