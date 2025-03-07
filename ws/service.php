@@ -241,8 +241,8 @@ switch ($accion) {
                 ));
                 return;
             } else {*/
-                $sql = "UPDATE clientes SET saldo = saldo - " . $_POST['monto'] . ", id_usuario_modificacion = " . $_POST['id_usuario_modificacion'] . ", fecha_modificacion = '" . date("Y-m-d H:i:s") . "' WHERE id = " . $_POST['id_cliente'];
-                $mono->executor($sql, "update");
+            $sql = "UPDATE clientes SET saldo = saldo - " . $_POST['monto'] . ", id_usuario_modificacion = " . $_POST['id_usuario_modificacion'] . ", fecha_modificacion = '" . date("Y-m-d H:i:s") . "' WHERE id = " . $_POST['id_cliente'];
+            $mono->executor($sql, "update");
             //}
         }
         $venta = new Ventas();
@@ -495,13 +495,17 @@ switch ($accion) {
         break;
 
     case 'ver_movimientos':
-        $sql = "SELECT p.producto, m.id, m.tipo, m.id_producto, m.cantidad, m.precio_unitario, c.nombres, DATE_SUB(m.fecha_creacion, INTERVAL 5 HOUR) as fecha FROM movimientos AS m left join productos AS p on p.id = m.id_producto left join clientes as c on c.id = m.id_cliente WHERE m.id_sucursal = " . $_POST['id_sucursal']." AND DATE_SUB(m.fecha_creacion, INTERVAL 5 HOUR) BETWEEN '" . $_POST['fecha_desde'] . "' AND '" . $_POST['fecha_hasta'] . "'";
+        $sql = "SELECT p.producto, m.id, m.tipo, m.id_producto, m.cantidad, m.precio_unitario, c.nombres, DATE_SUB(m.fecha_creacion, INTERVAL 5 HOUR) as fecha FROM movimientos AS m left join productos AS p on p.id = m.id_producto left join clientes as c on c.id = m.id_cliente WHERE m.id_sucursal = " . $_POST['id_sucursal'] . " AND DATE_SUB(m.fecha_creacion, INTERVAL 5 HOUR) BETWEEN '" . $_POST['fecha_desde'] . "' AND '" . $_POST['fecha_hasta'] . "'";
         echo $mono->run_query($sql);
         break;
     case 'autocomplete':
-        $sql = 'SELECT p.*, ps.precio_unitario, ps.stock FROM productos p JOIN producto_sucursal ps ON p.id = ps.id_producto AND ps.id_sucursal = ' . $_SESSION['id_sucursal'] . ' WHERE p.producto LIKE "%' . $_GET['search'] . '%"';
+        $sql = 'SELECT p.*, p.precio_unitario FROM productos p WHERE p.producto LIKE "%' . $_GET['search'] . '%"';
         echo $mono->run_query($sql);
         break;
+    /*case 'autocomplete':
+        $sql = 'SELECT p.*, ps.precio_unitario, ps.stock FROM productos p JOIN producto_sucursal ps ON p.id = ps.id_producto AND ps.id_sucursal = ' . $_SESSION['id_sucursal'] . ' WHERE p.producto LIKE "%' . $_GET['search'] . '%"';
+        echo $mono->run_query($sql);
+        break;*/
     case 'reporte_fecha':
         if ($_POST['id_sucursal'] > 0) {
             $sql = "SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND DATE(DATE_SUB(fecha_creacion, INTERVAL 5 HOUR)) = '" . $_POST['fecha'] . "' UNION ALL SELECT COALESCE(SUM(monto), 0) AS cant FROM gastos WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND DATE(DATE_SUB(fecha_creacion, INTERVAL 5 HOUR)) = '" . $_POST['fecha'] . "'

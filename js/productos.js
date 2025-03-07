@@ -20,6 +20,7 @@ function lista_productos() {
             $("#tabla-productos").find("tbody").append(`<tr>
                 <td>${val.id}</td>
                 <td>${val.producto}</td>
+                <td>${val.precio_unitario}</td>
                 <td>${val.categoria}</td>
                 <td>
                     <span class="btn btn-outline-warning btn-sm d-block mb-1" data-toggle="modal" data-target="#formulario" onclick="editar_producto(${val.id});"><i class="fa fa-edit"></i></span>
@@ -51,7 +52,8 @@ function actualizar_producto(id) {
         id_categoria: $("#id_categoria").val(),
         id: id,
         fecha_creacion: current.fecha_creacion,
-        id_usuario_creacion: current.id_usuario_creacion
+        id_usuario_creacion: current.id_usuario_creacion,
+        precio_unitario: $("#precio_unitario").val()
     }, function (response) {
         var obj = JSON.parse(response);
         if (obj.Result == "OK") {
@@ -66,7 +68,8 @@ function actualizar_producto(id) {
 function insertar_producto() {
     $.post("ws/service.php?parAccion=insertar_producto", {
         producto: $("#producto").val(),
-        id_categoria: $("#id_categoria").val()
+        id_categoria: $("#id_categoria").val(),
+        precio_unitario: $("#precio_unitario").val()
     }, function (response) {
         var obj = JSON.parse(response);
         if (obj.Result == "OK") {
@@ -98,6 +101,8 @@ function editar_producto(id) {
         current = obj;
         $("#producto").val(obj.producto);
         $("#id_categoria").val(obj.id_categoria);
+
+        $("#precio_unitario").val(obj.precio_unitario);
     });
 }
 function eliminar_producto(id) {

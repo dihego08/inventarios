@@ -14,7 +14,7 @@ $(document).ready(function () {
                 success: function (data) {
                     response($.map(data, function (item) {
                         $("#add-item").attr("onclick", `guardar_abastecimiento(${item.id}, '${parseFloat(item.precio_unitario).toFixed(2)}')`);
-                        //$("#precio_unitario").focus();
+                        $("#precio_unitario").val(item.precio_unitario);
                         return {
                             label: item.producto,
                             value: item.producto,
