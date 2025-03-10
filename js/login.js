@@ -9,6 +9,7 @@ function iniciar_sesion() {
         var obj = JSON.parse(response);
 
         if (obj.Result == "OK") {
+            localStorage.setItem("token", obj.Token);
             window.location.href = "index.html";
         } else {
             bootbox.alert({

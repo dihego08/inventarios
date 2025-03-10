@@ -13,6 +13,10 @@ include('models/Sucursal.php');
 include('models/Ventas.php');
 include('models/Movimientos.php');
 require __DIR__ . '/simplexlsx/src/SimpleXLSX.php';
+require 'jwt.php';
+
+//include('secure.php'); // Archivo para validar el token
+ 
 $mono = new Monodon();
 $con = $mono->getConnection();
 $accion = $_GET['parAccion'];
@@ -199,6 +203,11 @@ switch ($accion) {
         $_POST['id_usuario_modificacion'] = null;
         $_POST['fecha_modificacion'] = null;
         $_POST['fecha_creacion'] = null;
+        
+        if(empty($_POST['precio_unitario'])||is_null($_POST['precio_unitario'])||!isset($_POST['precio_unitario'])){
+            $_POST['precio_unitario']=0;
+        }
+        
         echo $mono->insert_data("productos", $_POST, false);
         break;
     case 'editar_producto':
@@ -443,11 +452,18 @@ switch ($accion) {
                 "Result" => "ERROR"
             ));
         } else {
+            $payload = [
+                "user_id" => $user->id,
+                "exp" => time() + (60 * 60) // Expira en 1 hora
+            ];
+            $token = generateJWT($payload, $secret_key);
+    
             $_SESSION['id'] = $user->id;
             $_SESSION['nombres'] = $user->nombres;
             $_SESSION['id_sucursal'] = $user->id_sucursal;
             echo json_encode(array(
-                "Result" => "OK"
+                "Result" => "OK",
+                "Token" => $token
             ));
         }
         break;
@@ -502,11 +518,8 @@ switch ($accion) {
         $sql = 'SELECT p.*, p.precio_unitario FROM productos p WHERE p.producto LIKE "%' . $_GET['search'] . '%"';
         echo $mono->run_query($sql);
         break;
-    /*case 'autocomplete':
-        $sql = 'SELECT p.*, ps.precio_unitario, ps.stock FROM productos p JOIN producto_sucursal ps ON p.id = ps.id_producto AND ps.id_sucursal = ' . $_SESSION['id_sucursal'] . ' WHERE p.producto LIKE "%' . $_GET['search'] . '%"';
-        echo $mono->run_query($sql);
-        break;*/
     case 'reporte_fecha':
+        
         if ($_POST['id_sucursal'] > 0) {
             $sql = "SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND DATE(DATE_SUB(fecha_creacion, INTERVAL 5 HOUR)) = '" . $_POST['fecha'] . "' UNION ALL SELECT COALESCE(SUM(monto), 0) AS cant FROM gastos WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND DATE(DATE_SUB(fecha_creacion, INTERVAL 5 HOUR)) = '" . $_POST['fecha'] . "'
             UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND DATE(DATE_SUB(fecha_creacion, INTERVAL 5 HOUR)) = '" . $_POST['fecha'] . "' AND id_forma_pago = 3

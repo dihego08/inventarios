@@ -26,7 +26,7 @@ function lista_sucursales() {
     });
 }
 function reporte_fecha() {
-    $.post("ws/service.php?parAccion=reporte_fecha", {
+    /*$.post("ws/service.php?parAccion=reporte_fecha", {
         id_sucursal: $("#id_sucursal").val(),
         fecha: $("#fecha").val()
     }, function (response) {
@@ -38,5 +38,29 @@ function reporte_fecha() {
         $("#plin_ahora").text("S/ " + $.trim(obj[3].cant));
         $("#efectivo_ahora").text("S/ " + $.trim(obj[4].cant));
         $("#saldo_ahora").text("S/ " + $.trim(obj[5].cant));
+    });*/
+    
+    $.ajax({
+        url: "ws/service.php?parAccion=reporte_fecha",
+        type: "POST",
+        data: {
+            id_sucursal: $("#id_sucursal").val(),
+            fecha: $("#fecha").val()
+        },
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token") // Token almacenado en localStorage
+        },
+        success: function (response) {
+            var obj = JSON.parse(response);
+            $("#ventas_ahora").text("S/ " + obj[0].cant);
+            $("#gastos_ahora").text("S/ " + $.trim(obj[1].cant));
+            $("#yape_ahora").text("S/ " + $.trim(obj[2].cant));
+            $("#plin_ahora").text("S/ " + $.trim(obj[3].cant));
+            $("#efectivo_ahora").text("S/ " + $.trim(obj[4].cant));
+            $("#saldo_ahora").text("S/ " + $.trim(obj[5].cant));
+        },
+        error: function (xhr, status, error) {
+            console.error("Error en la solicitud:", error);
+        }
     });
 }
