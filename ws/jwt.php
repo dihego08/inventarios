@@ -1,5 +1,5 @@
 <?php
-$secret_key = "IBEEcywkw8eLoLw"; // Usa una clave segura y guárdala bien
+$secret_key = "la_clave_secreta"; 
 
 // Función para generar un JWT manualmente
 function generateJWT($payload, $secret_key) {
