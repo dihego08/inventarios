@@ -8,34 +8,50 @@ $(document).ready(function () {
     lista_formas_pagos();
 
     $("#guardar_venta").on("click", function () {
-        console.log("CLIC EN VENTA");
-        console.log(codigos_carro);
-        console.log(cantidades);
-        console.log(precios);
-        $.post("ws/service.php?parAccion=guardar_venta", {
-            codigos_carro: codigos_carro,
-            cantidades: cantidades,
-            precios: precios,
-            id_cliente: $("#id_cliente").val(),
-            id_forma_pago: $("#id_forma_pago").val(),
-            monto: $("#total").val()
-        }, function (response) {
-            var obj = JSON.parse(response);
+        if ($("#id_cliente").val() == 0 || $("#id_cliente").val() == "") {
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: "Se debe de seleccionar un cliente!",
+            });
+        } else if ($("#id_forma_pago").val() == 0 || $("#id_forma_pago").val() == "") {
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: "Se debe de seleccionar una Forma de Pago!",
+            });
+        } else if (codigos_carro.length == 0) {
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: "Se debe de añadir al menos un producto!",
+            });
+        } else {
+            $.post("ws/service.php?parAccion=guardar_venta", {
+                codigos_carro: codigos_carro,
+                cantidades: cantidades,
+                precios: precios,
+                id_cliente: $("#id_cliente").val(),
+                id_forma_pago: $("#id_forma_pago").val(),
+                monto: $("#total").val()
+            }, function (response) {
+                var obj = JSON.parse(response);
 
-            if (obj.Result == "OK") {
-                alertify.success("Venta Registrada Correctamente.");
-                limpiar_formulario();
-            } else {
-                if (obj.Message !== undefined) {
-                    bootbox.alert({
-                        message: "ERROR: " + obj.Message,
-                        size: 'small'
-                    });
+                if (obj.Result == "OK") {
+                    alertify.success("Venta Registrada Correctamente.");
+                    limpiar_formulario();
                 } else {
-                    alertify.error("Algo ha salido terriblemente mal.");
+                    if (obj.Message !== undefined) {
+                        bootbox.alert({
+                            message: "ERROR: " + obj.Message,
+                            size: 'small'
+                        });
+                    } else {
+                        alertify.error("Algo ha salido terriblemente mal.");
+                    }
                 }
-            }
-        });
+            });
+        }
     });
     limpiar_campos();
     $("#producto").autocomplete({
@@ -49,16 +65,20 @@ $(document).ready(function () {
                 },
                 success: function (data) {
                     response($.map(data, function (item) {
-                        $("#add-item").attr("onclick", `anadirItem(${item.id}, '${item.producto}', '${parseFloat(item.precio_unitario).toFixed(2)}')`);
-                        //$("#cantidad").focus();
                         return {
                             label: item.producto + " S/ " + item.precio_unitario,
                             value: item.producto + " S/ " + item.precio_unitario,
-                            id: item.id
+                            id: item.id,
+                            producto: item.producto,
+                            precio_unitario: parseFloat(item.precio_unitario).toFixed(2)
                         }
                     }))
                 }
             });
+        },
+        select: function (event, ui) {
+            $("#add-item").attr("onclick", `anadirItem(${ui.item.id}, '${ui.item.producto}', '${ui.item.precio_unitario}')`);
+            $("#cantidad").trigger("focus");
         }
     });
     $("#cantidad").on("keydown", function () {
@@ -68,7 +88,7 @@ $(document).ready(function () {
     });
 });
 function limpiar_campos() {
-    $("#producto").focus();
+    $("#producto").trigger("focus");
     $("#producto").val("");
     $("#cantidad").val("");
 }
@@ -81,7 +101,7 @@ function limpiar_formulario() {
     cantidades = [];
     precios = [];
     calcularTodo();
-    $("#producto").focus();
+    $("#producto").trigger("focus");
 }
 function lista_formas_pagos() {
     $.post("ws/service.php?parAccion=lista_formas_pagos", {
@@ -110,27 +130,9 @@ function lista_clientes_sucursal() {
         $("#id_cliente").val(id_cliente_general).trigger('change');
     });
 }
-function lista_productos(id_categoria) {
-    $.post("ws/service.php?parAccion=lista_productos_categoria", {
-        id_categoria: id_categoria
-    }, function (response) {
-        var obj = JSON.parse(response);
-        $("#div-productos").empty();
-        $.each(obj, function (index, val) {
-            $("#div-productos").append(`<div class="col-md-3 mb-3">
-                <div class="card">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">${val.producto}</h5>
-                        <p class="card-text">S/ ${parseFloat(val.precio_unitario).toFixed(2)}</p>
-                        <button class="btn btn-primary" onclick="anadirItem(${val.id}, '${val.producto}', '${parseFloat(val.precio_unitario).toFixed(2)}')">Agregar</button>
-                    </div>
-                </div>
-            </div>`);
-        });
-    });
-}
 
 function anadirItem(id, nombre, precio) {
+    console.log($("#producto"));
     console.log(nombre);
     console.log(precio);
     var flag = 0;

@@ -66,20 +66,28 @@ function actualizar_producto(id) {
     });
 }
 function insertar_producto() {
-    $.post("ws/service.php?parAccion=insertar_producto", {
-        producto: $("#producto").val(),
-        id_categoria: $("#id_categoria").val(),
-        precio_unitario: $("#precio_unitario").val()
-    }, function (response) {
-        var obj = JSON.parse(response);
-        if (obj.Result == "OK") {
-            alertify.success("Se agregó correctamente.");
-            lista_productos();
-            limpiar_formulario();
-        } else {
-            alertify.error("Algo ha salido terriblemente mal.");
-        }
-    });
+    if ($("#precio_unitario").val() == "" || $("#precio_unitario").val() == 0) {
+        Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "El precio no puede ser vacío o 0!",
+          });
+    } else {
+        $.post("ws/service.php?parAccion=insertar_producto", {
+            producto: $("#producto").val(),
+            id_categoria: $("#id_categoria").val(),
+            precio_unitario: $("#precio_unitario").val()
+        }, function (response) {
+            var obj = JSON.parse(response);
+            if (obj.Result == "OK") {
+                alertify.success("Se agregó correctamente.");
+                lista_productos();
+                limpiar_formulario();
+            } else {
+                alertify.error("Algo ha salido terriblemente mal.");
+            }
+        });
+    }
 }
 function nuevo_producto() {
     $("#productoModalLabel").text("Nuevo Producto");

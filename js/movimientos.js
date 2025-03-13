@@ -50,11 +50,11 @@ function ver_movimientos() {
             }
             $("#tabla-movimientos").find("tbody").append(`<tr>
                 <td>${val.id}</td>
-                <td>${val.producto}</td>
+                <td>${$.trim(val.producto)}</td>
                 <td>${tipo}</td>
                 <td>${val.cantidad}</td>
                 <td>${$.trim(val.nombres)}</td>
-                <td>${val.precio_unitario}</td>
+                <td>${val.precio_unitario || 0}</td>
                 <td>${val.fecha}</td>
             </tr>`);
         });
