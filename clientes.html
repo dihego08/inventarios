@@ -295,13 +295,27 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-row">
-                        <div class="col-md-11">
+                        <div class="col-md-3">
                             <label for="monto">Monto a Recargar</label>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="id_forma_pago">Forma de Pago</label>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="fecha">Fecha de Recarga</label>
                         </div>
                         <div class="col-md-1">
                         </div>
-                        <div class="col-md-11">
+                        <div class="col-md-3">
                             <input type="text" class="form-control" id="monto">
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-control" id="id_forma_pago" name="id_forma_pago">
+                                <option value="0">--SELECCIONE--</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control fecha" id="fecha">
                         </div>
                         <div class="col-md-1">
                             <span class="btn btn-outline-success btn-rounded" id="btn-accion-saldo"><i

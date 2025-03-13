@@ -13,16 +13,26 @@ $(document).ready(function () {
                 },
                 success: function (data) {
                     response($.map(data, function (item) {
-                        $("#add-item").attr("onclick", `guardar_abastecimiento(${item.id}, '${parseFloat(item.precio_unitario).toFixed(2)}')`);
+                        
                         $("#precio_unitario").val(item.precio_unitario);
                         return {
+                            /*label: item.producto,
+                            value: item.producto,
+                            id: item.id*/
                             label: item.producto,
                             value: item.producto,
-                            id: item.id
+                            id: item.id,
+                            producto: item.producto,
+                            precio_unitario: parseFloat(item.precio_unitario).toFixed(2)
                         }
                     }))
                 }
             });
+        },
+        select: function (event, ui) {
+            //$("#add-item").attr("onclick", `anadirItem(${ui.item.id}, '${ui.item.producto}', '${ui.item.precio_unitario}')`);
+            $("#add-item").attr("onclick", `guardar_abastecimiento(${ui.item.id}, '${parseFloat(ui.item.precio_unitario).toFixed(2)}')`);
+            $("#cantidad").trigger("focus");
         }
     });
     $("#cantidad").on("keydown", function () {

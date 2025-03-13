@@ -83,7 +83,8 @@ function actualizar_gasto(id) {
         monto: $("#monto").val(),
         id: id,
         fecha_creacion: current.fecha_creacion,
-        id_usuario_creacion: current.id_usuario_creacion
+        id_usuario_creacion: current.id_usuario_creacion,
+        fecha: $("#fecha").val()
     }, function (response) {
         var obj = JSON.parse(response);
         if (obj.Result == "OK") {
@@ -99,7 +100,8 @@ function insertar_gasto() {
     $.post("ws/service.php?parAccion=insertar_gasto", {
         id_sucursal: $("#id_sucursal").val(),
         concepto: $("#concepto").val(),
-        monto: $("#monto").val()
+        monto: $("#monto").val(),
+        fecha: $("#fecha").val()
     }, function (response) {
         var obj = JSON.parse(response);
         if (obj.Result == "OK") {
@@ -128,6 +130,7 @@ function editar_gasto(id) {
         $("#id_sucursal").val(obj.id_sucursal);
         $("#concepto").val(obj.concepto);
         $("#monto").val(obj.monto);
+        $("#fecha").val(obj.fecha);
     });
 }
 function limpiar_formulario() {

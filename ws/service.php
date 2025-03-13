@@ -305,7 +305,7 @@ switch ($accion) {
         echo json_encode(array("Result" => "OK"));
         break;
     case 'lista_ventas':
-        $sql = "SELECT v.*, c.nombres, s.sucursal, DATE(DATE_SUB(v.fecha_creacion, INTERVAL 5 HOUR)) as fecha, f.forma_pago FROM ventas AS v LEFT JOIN clientes AS c ON c.id = v.id_cliente LEFT JOIN sucursales AS s ON s.id = v.id_sucursal LEFT JOIN formas_pagos AS f ON f.id = v.id_forma_pago WHERE v.estado = 0 AND DATE(DATE_SUB(v.fecha_creacion, INTERVAL 5 HOUR)) BETWEEN '" . $_POST['fecha_desde'] . "' AND '" . $_POST['fecha_hasta'] . "'";
+        $sql = "SELECT v.*, c.nombres, s.sucursal, v.fecha_creacion as fecha, f.forma_pago FROM ventas AS v LEFT JOIN clientes AS c ON c.id = v.id_cliente LEFT JOIN sucursales AS s ON s.id = v.id_sucursal LEFT JOIN formas_pagos AS f ON f.id = v.id_forma_pago WHERE v.estado = 0 AND date(v.fecha_creacion) BETWEEN '" . $_POST['fecha_desde'] . "' AND '" . $_POST['fecha_hasta'] . "'";
         echo $mono->run_query($sql);
         break;
     case 'eliminar_venta':
@@ -348,7 +348,7 @@ switch ($accion) {
         $data_movimientos['id_sucursal'] = $_POST['id_sucursal'];
         $data_movimientos['id_cliente'] = null;
         $data_movimientos['id_usuario_creacion'] = $_SESSION['id'];
-        $data_movimientos['fecha_creacion'] = null;
+        $data_movimientos['fecha_creacion'] = date("Y-m-d H:i:s");
         $data_movimientos['id_usuario_modificacion'] = null;
         $data_movimientos['fecha_modificacion'] = null;
 
@@ -400,7 +400,7 @@ switch ($accion) {
                     $data_movimientos['id_sucursal'] = $_POST['id_sucursal'];
                     $data_movimientos['id_cliente'] = null;
                     $data_movimientos['id_usuario_creacion'] = $_SESSION['id'];
-                    $data_movimientos['fecha_creacion'] = null;
+                    $data_movimientos['fecha_creacion'] = date("Y-m-d H:i:s");
                     $data_movimientos['id_usuario_modificacion'] = null;
                     $data_movimientos['fecha_modificacion'] = null;
 
@@ -431,20 +431,22 @@ switch ($accion) {
         }
         break;
     case 'buscar_saldos_cliente':
-        $sql = "SELECT r.id, r.monto, DATE(DATE_SUB(r.fecha_creacion, INTERVAL 5 HOUR)) as fecha, 'R' AS tipo FROM recargas AS r WHERE r.id_cliente = " . $_POST['id_cliente'] . " AND DATE(DATE_SUB(r.fecha_creacion, INTERVAL 5 HOUR)) BETWEEN '" . $_POST['fecha_desde'] . "' AND '" . $_POST['fecha_hasta'] . "' UNION SELECT v.id, v.monto, DATE(DATE_SUB(v.fecha_creacion, INTERVAL 5 HOUR)) as fecha, 'V' AS tipo FROM ventas AS v WHERE v.estado = 0 AND DATE(DATE_SUB(v.fecha_creacion, INTERVAL 5 HOUR)) BETWEEN '" . $_POST['fecha_desde'] . "' AND '" . $_POST['fecha_hasta'] . "' AND v.id_forma_pago = 2 AND v.id_cliente = " . $_POST['id_cliente'];
+        $sql = "SELECT r.id, r.monto, r.fecha_creacion as fecha, 'R' AS tipo FROM recargas AS r WHERE r.id_cliente = " . $_POST['id_cliente'] . " AND date(r.fecha_creacion) BETWEEN '" . $_POST['fecha_desde'] . "' AND '" . $_POST['fecha_hasta'] . "' UNION SELECT v.id, v.monto, v.fecha_creacion as fecha, 'V' AS tipo FROM ventas AS v WHERE v.estado = 0 AND date(v.fecha_creacion) BETWEEN '" . $_POST['fecha_desde'] . "' AND '" . $_POST['fecha_hasta'] . "' AND v.id_forma_pago = 2 AND v.id_cliente = " . $_POST['id_cliente'];
         echo $mono->run_query($sql);
         break;
     case 'buscar_saldos':
-        $sql = "SELECT c.nombres, r.id, r.monto, DATE(DATE_SUB(r.fecha_creacion, INTERVAL 5 HOUR)) as fecha FROM clientes AS c JOIN recargas AS r ON r.id_cliente = c.id AND c.id = " . $_POST['id_cliente'] . " WHERE DATE(DATE_SUB(r.fecha_creacion, INTERVAL 5 HOUR)) BETWEEN '" . $_POST['fecha_desde'] . "' AND '" . $_POST['fecha_hasta'] . "'";
+        $sql = "SELECT c.nombres, r.id, r.monto, r.fecha_creacion as fecha FROM clientes AS c JOIN recargas AS r ON r.id_cliente = c.id AND c.id = " . $_POST['id_cliente'] . " WHERE fecha BETWEEN '" . $_POST['fecha_desde'] . "' AND '" . $_POST['fecha_hasta'] . "'";
         echo $mono->run_query($sql);
         break;
     case "insertar_saldo":
         $_POST['id_usuario_creacion'] = $_SESSION['id'];
-        $_POST['id_usuario_modificacion'] = $_SESSION['id'];
+        $_POST['id_usuario_modificacion'] = 0;
         $_POST['fecha_modificacion'] = null;
         $_POST['fecha_creacion'] = date("Y-m-d H:i:s");
+        $_POST['id_forma_pago'] = $_POST['id_forma_pago'];
+        $_POST['fecha'] = $_POST['fecha'];
         $r1 = $mono->insert_data("recargas", $_POST, false);
-
+        $_POST['id_usuario_modificacion'] = $_SESSION['id'];
         $sql = "UPDATE clientes SET saldo = saldo + " . $_POST['monto'] . ", id_usuario_modificacion = " . $_POST['id_usuario_modificacion'] . ", fecha_modificacion = '" . date("Y-m-d H:i:s") . "' WHERE id = " . $_POST['id_cliente'];
         echo $mono->executor($sql, "update");
 
@@ -495,12 +497,13 @@ switch ($accion) {
 
 
     case 'lista_gastos':
-        $sql = "SELECT g.*, s.sucursal, DATE(DATE_SUB(g.fecha_creacion, INTERVAL 5 HOUR)) as fecha FROM gastos AS g LEFT JOIN sucursales AS s ON s.id = g.id_sucursal WHERE DATE(DATE_SUB(g.fecha_creacion, INTERVAL 5 HOUR)) BETWEEN '" . $_POST['fecha_desde'] . "' AND '" . $_POST['fecha_hasta'] . "'";
+        $sql = "SELECT g.*, s.sucursal, g.fecha as fecha FROM gastos AS g LEFT JOIN sucursales AS s ON s.id = g.id_sucursal WHERE date(g.fecha_creacion) BETWEEN '" . $_POST['fecha_desde'] . "' AND '" . $_POST['fecha_hasta'] . "'";
         echo $mono->run_query($sql);
         break;
     case 'insertar_gasto':
         $_POST['id_usuario_creacion'] = $_SESSION['id'];
         $_POST['fecha_creacion'] = date("Y-m-d H:i:s");
+        $_POST['fecha'] = $_POST['fecha'];
         $_POST['fecha_modificacion'] = null;
         $_POST['id_usuario_modificacion'] = null;
         echo $mono->insert_data("gastos", $_POST, false);
@@ -518,7 +521,7 @@ switch ($accion) {
         break;
 
     case 'ver_movimientos':
-        $sql = "SELECT p.producto, m.id, m.tipo, m.id_producto, m.cantidad, p.precio_unitario, c.nombres, DATE_SUB(m.fecha_creacion, INTERVAL 5 HOUR) as fecha FROM movimientos AS m left join productos AS p on p.id = m.id_producto left join clientes as c on c.id = m.id_cliente WHERE m.id_sucursal = " . $_POST['id_sucursal'] . " AND DATE_SUB(m.fecha_creacion, INTERVAL 5 HOUR) BETWEEN '" . $_POST['fecha_desde'] . "' AND '" . $_POST['fecha_hasta'] . "'";
+        $sql = "SELECT p.producto, m.id, m.tipo, m.id_producto, m.cantidad, p.precio_unitario, c.nombres, m.fecha_creacion as fecha FROM movimientos AS m left join productos AS p on p.id = m.id_producto left join clientes as c on c.id = m.id_cliente WHERE m.id_sucursal = " . $_POST['id_sucursal'] . " AND date(m.fecha_creacion) BETWEEN '" . $_POST['fecha_desde'] . "' AND '" . $_POST['fecha_hasta'] . "'";
         echo $mono->run_query($sql);
         break;
     case 'autocomplete':
@@ -528,17 +531,17 @@ switch ($accion) {
     case 'reporte_fecha':
 
         if ($_POST['id_sucursal'] > 0) {
-            $sql = "SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND DATE(DATE_SUB(fecha_creacion, INTERVAL 5 HOUR)) = '" . $_POST['fecha'] . "' UNION ALL SELECT COALESCE(SUM(monto), 0) AS cant FROM gastos WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND DATE(DATE_SUB(fecha_creacion, INTERVAL 5 HOUR)) = '" . $_POST['fecha'] . "'
-            UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND DATE(DATE_SUB(fecha_creacion, INTERVAL 5 HOUR)) = '" . $_POST['fecha'] . "' AND id_forma_pago = 3
-            UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND DATE(DATE_SUB(fecha_creacion, INTERVAL 5 HOUR)) = '" . $_POST['fecha'] . "' AND id_forma_pago = 4
-            UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND DATE(DATE_SUB(fecha_creacion, INTERVAL 5 HOUR)) = '" . $_POST['fecha'] . "' AND id_forma_pago = 1
-            UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND DATE(DATE_SUB(fecha_creacion, INTERVAL 5 HOUR)) = '" . $_POST['fecha'] . "' AND id_forma_pago = 2;";
+            $sql = "SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND fecha_creacion = '" . $_POST['fecha'] . "' UNION ALL SELECT COALESCE(SUM(monto), 0) AS cant FROM gastos WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND fecha_creacion = '" . $_POST['fecha'] . "'
+            UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND fecha_creacion = '" . $_POST['fecha'] . "' AND id_forma_pago = 3
+            UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND fecha_creacion = '" . $_POST['fecha'] . "' AND id_forma_pago = 4
+            UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND fecha_creacion = '" . $_POST['fecha'] . "' AND id_forma_pago = 1
+            UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND fecha_creacion = '" . $_POST['fecha'] . "' AND id_forma_pago = 2;";
         } else {
-            $sql = "SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE DATE(DATE_SUB(fecha_creacion, INTERVAL 5 HOUR)) = '" . $_POST['fecha'] . "' UNION ALL SELECT COALESCE(SUM(monto), 0) AS cant FROM gastos WHERE DATE(DATE_SUB(fecha_creacion, INTERVAL 5 HOUR)) = '" . $_POST['fecha'] . "'
-            UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE DATE(DATE_SUB(fecha_creacion, INTERVAL 5 HOUR)) = '" . $_POST['fecha'] . "' AND id_forma_pago = 3
-            UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE DATE(DATE_SUB(fecha_creacion, INTERVAL 5 HOUR)) = '" . $_POST['fecha'] . "' AND id_forma_pago = 4
-            UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE DATE(DATE_SUB(fecha_creacion, INTERVAL 5 HOUR)) = '" . $_POST['fecha'] . "' AND id_forma_pago = 1
-            UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE DATE(DATE_SUB(fecha_creacion, INTERVAL 5 HOUR)) = '" . $_POST['fecha'] . "' AND id_forma_pago = 2;";
+            $sql = "SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE fecha_creacion = '" . $_POST['fecha'] . "' UNION ALL SELECT COALESCE(SUM(monto), 0) AS cant FROM gastos WHERE fecha_creacion = '" . $_POST['fecha'] . "'
+            UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE fecha_creacion = '" . $_POST['fecha'] . "' AND id_forma_pago = 3
+            UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE fecha_creacion = '" . $_POST['fecha'] . "' AND id_forma_pago = 4
+            UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE fecha_creacion = '" . $_POST['fecha'] . "' AND id_forma_pago = 1
+            UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE fecha_creacion = '" . $_POST['fecha'] . "' AND id_forma_pago = 2;";
         }
         //echo $sql;
         echo $mono->run_query($sql);

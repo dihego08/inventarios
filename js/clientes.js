@@ -11,7 +11,7 @@ $(document).ready(function () {
             $("#div-tipo-cliente").attr("hidden", true);
         }
     });
-
+    lista_formas_pagos();
     var today = new Date();
     var dd = String(today.getDate()).padStart(2, '0');
     var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
@@ -35,6 +35,16 @@ $(document).ready(function () {
     });
     $.datetimepicker.setLocale('es');
 });
+function lista_formas_pagos() {
+    $.post("ws/service.php?parAccion=lista_formas_pagos", {
+        id_sucursal: 2
+    }, function (response) {
+        var obj = JSON.parse(response);
+        $.each(obj, function (index, val) {
+            $("#id_forma_pago").append(`<option value="${val.id}">${val.forma_pago}</option>`);
+        });
+    });
+}
 function lista_tipos_clientes() {
     $.post("ws/service.php?parAccion=lista_tipos_clientes", function (response) {
         var obj = JSON.parse(response);
@@ -51,16 +61,19 @@ function lista_sucursales() {
             $("#id_sucursal").append(`<option value="${val.id}">${val.sucursal}</option>`);
         });
     });
-}function insertar_saldo(id) {
+} function insertar_saldo(id) {
     $.post("ws/service.php?parAccion=insertar_saldo", {
         id_cliente: id,
-        monto: $("#monto").val()
+        monto: $("#monto").val(),
+        id_forma_pago: $("#id_forma_pago").val(),
+        fecha: $("#fecha").val(),
     }, function (response) {
         var obj = JSON.parse(response);
         if (obj.Result == "OK") {
             alertify.success("Se agregó correctamente.");
             buscar_saldos();
             limpiar_formulario();
+            lista_clientes();
         } else {
             alertify.error("Algo ha salido terriblemente mal.");
         }
