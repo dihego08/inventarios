@@ -26,20 +26,6 @@ function lista_sucursales() {
     });
 }
 function reporte_fecha() {
-    /*$.post("ws/service.php?parAccion=reporte_fecha", {
-        id_sucursal: $("#id_sucursal").val(),
-        fecha: $("#fecha").val()
-    }, function (response) {
-        var obj = JSON.parse(response);
-        $("#ventas_ahora").text("S/ " + obj[0].cant);
-        $("#gastos_ahora").text("S/ " + $.trim(obj[1].cant));
-
-        $("#yape_ahora").text("S/ " + $.trim(obj[2].cant));
-        $("#plin_ahora").text("S/ " + $.trim(obj[3].cant));
-        $("#efectivo_ahora").text("S/ " + $.trim(obj[4].cant));
-        $("#saldo_ahora").text("S/ " + $.trim(obj[5].cant));
-    });*/
-    
     $.ajax({
         url: "ws/service.php?parAccion=reporte_fecha",
         type: "POST",
@@ -52,12 +38,50 @@ function reporte_fecha() {
         },
         success: function (response) {
             var obj = JSON.parse(response);
-            $("#ventas_ahora").text("S/ " + obj[0].cant);
-            $("#gastos_ahora").text("S/ " + $.trim(obj[1].cant));
-            $("#yape_ahora").text("S/ " + $.trim(obj[2].cant));
-            $("#plin_ahora").text("S/ " + $.trim(obj[3].cant));
-            $("#efectivo_ahora").text("S/ " + $.trim(obj[4].cant));
-            $("#saldo_ahora").text("S/ " + $.trim(obj[5].cant));
+            let total = 0;
+            let total_ventas = 0;
+            let total_gastos = 0;
+            $.each(obj.ventas, function (index, val) {
+                $("#div_pago_" + val.id).text("S/ " + val.cant);
+                total += parseFloat(val.cant);
+            });
+            $("#ventas_ahora").text("S/ " + total.toFixed(2));
+            $("#gastos_ahora").text("S/ " + obj.gastos[0].cant)
+
+            $("#ventas_gastos").text("S/ " + (total - obj.gastos[0].cant).toFixed(2));
+
+            $("#ventas_acumuladas").empty();
+            $("#gastos_acumulados").empty();
+
+            $.each(obj.acumulado, function (index, val) {
+                if (val.tipo == "V") {
+                    total_ventas += parseFloat(val.cant);
+                    $("#ventas_acumuladas").append(`<li class="list-group-item">
+                        <div class="form-row">
+                            <div class="col-md-6">
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">${val.fecha}</div>
+                            </div>
+                            <div class="col-md-6">
+                                S/ ${val.cant}
+                            </div>
+                        </div>
+                    </li>`);
+                } else {
+                    total_gastos += parseFloat(val.cant);
+                    $("#gastos_acumulados").append(`<li class="list-group-item">
+                        <div class="form-row">
+                            <div class="col-md-6">
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">${val.fecha}</div>
+                            </div>
+                            <div class="col-md-6">
+                                S/ ${val.cant}
+                            </div>
+                        </div>
+                    </li>`);
+                }
+            });
+
+            $("#ventas_gastos_acumulados").text("S/ " + (total_ventas - total_gastos).toFixed(2));
         },
         error: function (xhr, status, error) {
             console.error("Error en la solicitud:", error);

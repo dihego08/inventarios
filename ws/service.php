@@ -531,20 +531,33 @@ switch ($accion) {
     case 'reporte_fecha':
 
         if ($_POST['id_sucursal'] > 0) {
-            $sql = "SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND fecha_creacion = '" . $_POST['fecha'] . "' UNION ALL SELECT COALESCE(SUM(monto), 0) AS cant FROM gastos WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND fecha_creacion = '" . $_POST['fecha'] . "'
+            /*$sql = "SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND fecha_creacion = '" . $_POST['fecha'] . "' UNION ALL SELECT COALESCE(SUM(monto), 0) AS cant FROM gastos WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND fecha_creacion = '" . $_POST['fecha'] . "'
             UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND fecha_creacion = '" . $_POST['fecha'] . "' AND id_forma_pago = 3
             UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND fecha_creacion = '" . $_POST['fecha'] . "' AND id_forma_pago = 4
             UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND fecha_creacion = '" . $_POST['fecha'] . "' AND id_forma_pago = 1
-            UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND fecha_creacion = '" . $_POST['fecha'] . "' AND id_forma_pago = 2;";
+            UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND fecha_creacion = '" . $_POST['fecha'] . "' AND id_forma_pago = 2;";*/
+
+            $sql_ventas = "SELECT SUM(cant) AS cant, id FROM (SELECT COALESCE(SUM(v.monto), 0) AS cant, fp.id FROM ventas v RIGHT JOIN formas_pagos fp ON v.id_forma_pago = fp.id AND date(v.fecha_creacion) = '" . $_POST['fecha'] . "' AND v.id_sucursal = " . $_POST['id_sucursal'] . " GROUP BY fp.id UNION ALL SELECT COALESCE(sum(r.monto), 0) AS cant, fp.id FROM recargas r RIGHT JOIN formas_pagos fp ON r.id_forma_pago = fp.id AND r.fecha = '" . $_POST['fecha'] . "' JOIN clientes c ON c.id = r.id_cliente AND c.id_sucursal = " . $_POST['id_sucursal'] . " GROUP BY fp.id) AS tb1 GROUP BY id;";
+            $sql_gastos = "SELECT COALESCE(SUM(monto), 0) AS cant FROM gastos WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND fecha = '" . $_POST['fecha'] . "'";
         } else {
-            $sql = "SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE fecha_creacion = '" . $_POST['fecha'] . "' UNION ALL SELECT COALESCE(SUM(monto), 0) AS cant FROM gastos WHERE fecha_creacion = '" . $_POST['fecha'] . "'
+            /*$sql = "SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE fecha_creacion = '" . $_POST['fecha'] . "' UNION ALL SELECT COALESCE(SUM(monto), 0) AS cant FROM gastos WHERE fecha_creacion = '" . $_POST['fecha'] . "'
             UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE fecha_creacion = '" . $_POST['fecha'] . "' AND id_forma_pago = 3
             UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE fecha_creacion = '" . $_POST['fecha'] . "' AND id_forma_pago = 4
             UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE fecha_creacion = '" . $_POST['fecha'] . "' AND id_forma_pago = 1
-            UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE fecha_creacion = '" . $_POST['fecha'] . "' AND id_forma_pago = 2;";
+            UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE fecha_creacion = '" . $_POST['fecha'] . "' AND id_forma_pago = 2;";*/
+
+            $sql_ventas = "SELECT SUM(cant) AS cant, id FROM (SELECT COALESCE(SUM(v.monto), 0) AS cant, fp.id FROM ventas v RIGHT JOIN formas_pagos fp ON v.id_forma_pago = fp.id AND date(v.fecha_creacion) = '" . $_POST['fecha'] . "' GROUP BY fp.id UNION ALL SELECT COALESCE(sum(r.monto), 0) AS cant, fp.id FROM recargas r RIGHT JOIN formas_pagos fp ON r.id_forma_pago = fp.id AND r.fecha = '" . $_POST['fecha'] . "' GROUP BY fp.id) AS tb1 GROUP BY id;";
+            $sql_gastos = "SELECT COALESCE(SUM(monto), 0) AS cant FROM gastos WHERE fecha = '" . $_POST['fecha'] . "'";
         }
         //echo $sql;
-        echo $mono->run_query($sql);
+        $ventas = json_decode($mono->run_query($sql_ventas));
+        $gastos = json_decode($mono->run_query($sql_gastos));
+        $acumulado = json_decode($mono->run_query("SELECT COALESCE(sum(v.monto), 0) cant, DATE(v.fecha_creacion) fecha, 'V' tipo FROM ventas AS v GROUP BY fecha UNION ALL SELECT COALESCE(SUM(g.monto), 0) cant, DATE(g.fecha) fecha, 'G' tipo FROM gastos AS g GROUP BY fecha ORDER BY fecha DESC;"));
+        $values = array();
+        $values['ventas'] = $ventas;
+        $values['gastos'] = $gastos;
+        $values['acumulado'] = $acumulado;
+        echo json_encode($values);
         break;
     default:
         # code...
