@@ -295,6 +295,7 @@ switch ($accion) {
             $movimientos->id_sucursal = $_SESSION['id_sucursal'];
             $movimientos->id_cliente = $_POST['id_cliente'];
             $movimientos->id_usuario_creacion = $_SESSION['id'];
+            $movimientos->fecha_creacion = date("Y-m-d H:i:s");
 
             $r2 = $mono->insert_data_v2("movimientos", $movimientos);
 
