@@ -553,7 +553,8 @@ switch ($accion) {
         //echo $sql;
         $ventas = json_decode($mono->run_query($sql_ventas));
         $gastos = json_decode($mono->run_query($sql_gastos));
-        $acumulado = json_decode($mono->run_query("SELECT COALESCE(sum(v.monto), 0) cant, DATE(v.fecha_creacion) fecha, 'V' tipo FROM ventas AS v GROUP BY fecha UNION ALL SELECT COALESCE(SUM(g.monto), 0) cant, DATE(g.fecha) fecha, 'G' tipo FROM gastos AS g GROUP BY fecha ORDER BY fecha DESC;"));
+        //$acumulado = json_decode($mono->run_query("SELECT COALESCE(sum(v.monto), 0) cant, DATE(v.fecha_creacion) fecha, 'V' tipo FROM ventas AS v GROUP BY fecha UNION ALL SELECT COALESCE(SUM(g.monto), 0) cant, DATE(g.fecha) fecha, 'G' tipo FROM gastos AS g GROUP BY fecha/* UNION ALL SELECT COALESCE(SUM(r.monto), 0) cant, DATE(r.fecha) fecha, 'R' tipo FROM recargas AS r GROUP BY fecha*/ ORDER BY fecha DESC;"));
+        $acumulado = json_decode($mono->run_query("select sum(cant) as cant, fecha, 'V' tipo FROM (SELECT COALESCE(sum(v.monto), 0) cant, DATE(v.fecha_creacion) fecha, 'V' tipo FROM ventas AS v GROUP BY fecha UNION ALL SELECT COALESCE(SUM(r.monto), 0) cant, DATE(r.fecha) fecha, 'R' tipo FROM recargas AS r GROUP BY fecha ORDER BY fecha DESC) as G GROUP by fecha union all SELECT COALESCE(SUM(g.monto), 0) cant, DATE(g.fecha) fecha, 'G' tipo FROM gastos AS g GROUP BY fecha ORDER BY fecha DESC;"));
         $values = array();
         $values['ventas'] = $ventas;
         $values['gastos'] = $gastos;
