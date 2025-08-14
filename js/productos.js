@@ -2,12 +2,21 @@ let current = null;
 $(document).ready(function () {
     lista_productos();
     lista_categorias();
+    lista_marcas();
 });
 function lista_categorias() {
     $.post("ws/service.php?parAccion=lista_categorias", function (response) {
         var obj = JSON.parse(response);
         $.each(obj, function (index, val) {
             $("#id_categoria").append(`<option value="${val.id}">${val.categoria}</option>`);
+        });
+    });
+}
+function lista_marcas() {
+    $.post("ws/service.php?parAccion=lista_marcas", function (response) {
+        var obj = JSON.parse(response);
+        $.each(obj, function (index, val) {
+            $("#id_marca").append(`<option value="${val.id}">${val.marca}</option>`);
         });
     });
 }
@@ -19,9 +28,13 @@ function lista_productos() {
         $.each(obj, function (index, val) {
             $("#tabla-productos").find("tbody").append(`<tr>
                 <td>${val.id}</td>
-                <td>${val.producto}</td>
-                <td>${val.precio_unitario}</td>
+                <td>${val.codigo}</td>
+                <td><span title="${val.descripcion}">${val.producto}</span></td>
                 <td>${val.categoria}</td>
+                <td>${val.marca}</td>
+                <td>${$.trim(val.stock_actual)}</td>
+                <td>${$.trim(val.precio_compra)}</td>
+                <td>${$.trim(val.precio_venta)}</td>
                 <td>
                     <span class="btn btn-outline-warning btn-sm d-block mb-1" data-toggle="modal" data-target="#formulario" onclick="editar_producto(${val.id});"><i class="fa fa-edit"></i></span>
                     <span  class="btn btn-outline-danger btn-sm d-block" onclick="eliminar_producto(${val.id});"><i class="fa fa-trash"></i></span>
@@ -50,10 +63,10 @@ function actualizar_producto(id) {
     $.post("ws/service.php?parAccion=actualizar_producto", {
         producto: $("#producto").val(),
         id_categoria: $("#id_categoria").val(),
-        id: id,
-        fecha_creacion: current.fecha_creacion,
-        id_usuario_creacion: current.id_usuario_creacion,
-        precio_unitario: $("#precio_unitario").val()
+        id_marca: $("#id_marca").val(),
+        descripcion: $("#descripcion").val(),
+        codigo: $("#codigo").val(),
+        id: id
     }, function (response) {
         var obj = JSON.parse(response);
         if (obj.Result == "OK") {
@@ -66,17 +79,19 @@ function actualizar_producto(id) {
     });
 }
 function insertar_producto() {
-    if ($("#precio_unitario").val() == "" || $("#precio_unitario").val() == 0) {
+    if ($("#producto").val() == "" || $("#codigo").val() == "") {
         Swal.fire({
             icon: "error",
             title: "Oops...",
-            text: "El precio no puede ser vacío o 0!",
-          });
+            text: "El campo 'Producto' ó 'Código' no puede ser vacío!",
+        });
     } else {
         $.post("ws/service.php?parAccion=insertar_producto", {
             producto: $("#producto").val(),
             id_categoria: $("#id_categoria").val(),
-            precio_unitario: $("#precio_unitario").val()
+            id_marca: $("#id_marca").val(),
+            descripcion: $("#descripcion").val(),
+            codigo: $("#codigo").val()
         }, function (response) {
             var obj = JSON.parse(response);
             if (obj.Result == "OK") {
@@ -110,7 +125,9 @@ function editar_producto(id) {
         $("#producto").val(obj.producto);
         $("#id_categoria").val(obj.id_categoria);
 
-        $("#precio_unitario").val(obj.precio_unitario);
+        $("#id_marca").val(obj.id_marca);
+        $("#codigo").val(obj.codigo);
+        $("#descripcion").val(obj.descripcion);
     });
 }
 function eliminar_producto(id) {

@@ -4,7 +4,8 @@ class Monodon
     protected $obj;
     protected $md;
     protected $con;
-    public function __construct($server = "mysql:host=localhost;dbname=user", $user = "user", $pass = "pass", $options = [PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'UTF8'"])
+    public function __construct($server = "mysql:host=193.203.175.216;dbname=u622044135_inventario", $user = "u622044135_inventario", $pass = ":av!n2X8=Xv", $options = [PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'UTF8'"])
+
 
     {
         try {

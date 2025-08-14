@@ -12,6 +12,8 @@ include('../env/Monodon.php');
 include('models/Sucursal.php');
 include('models/Ventas.php');
 include('models/Movimientos.php');
+include('models/Productos.php');
+include('models/Proveedor.php');
 require __DIR__ . '/simplexlsx/src/SimpleXLSX.php';
 require 'jwt.php';
 
@@ -47,7 +49,31 @@ switch ($accion) {
     case 'eliminar_categoria':
         echo $mono->delete_data("categorias", array("id" => $_POST['id']));
         break;
-
+    case 'lista_marcas':
+        echo $mono->select_all("marcas", true);
+        break;
+    case 'insertar_marca':
+        $_POST['imagen'] = null;
+        $_POST['id_usuario_creacion'] = $_SESSION['id'];
+        $_POST['id_usuario_modificacion'] = null;
+        $_POST['fecha_modificacion'] = null;
+        $_POST['fecha_creacion'] = date("Y-m-d H:i:s");
+        echo $mono->insert_data("marcas", $_POST, false);
+        break;
+    case 'editar_marca':
+        echo $mono->select_one("marcas", array("id" => $_POST['id']));
+        break;
+    case 'actualizar_marca':
+        $_POST['imagen'] = null;
+        $_POST['fecha_creacion'] = $_POST['fecha_creacion'];
+        $_POST['id_usuario_creacion'] = $_POST['id_usuario_creacion'];
+        $_POST['fecha_modificacion'] = date("Y-m-d H:i:s");
+        $_POST['id_usuario_modificacion'] = $_SESSION['id'];
+        echo $mono->update_data("marcas", $_POST);
+        break;
+    case 'eliminar_marca':
+        echo $mono->delete_data("marcas", array("id" => $_POST['id']));
+        break;
 
     case 'lista_sucursales':
         echo $mono->select_all("sucursales", true);
@@ -187,45 +213,49 @@ switch ($accion) {
         $data = json_decode($mono->run_query($sql));
         $values = array();
         foreach ($data as $key) {
-            $categoria = json_decode($mono->select_one("categorias", array("id" => $key->id_categoria)));
-            if (!empty($categoria)) {
-                $key->categoria = $categoria->categoria;
+            if ($key->id_marca > 0 && !empty($key->id_marca)) {
+                $marca = json_decode($mono->select_one("marcas", array("id" => $key->id_marca)));
+                $key->marca = $marca->marca;
             } else {
-                $key->categoria = '';
+                $key->marca = null;
             }
 
-
+            if ($key->id_categoria > 0 && !empty($key->id_categoria)) {
+                $categoria = json_decode($mono->select_one("categorias", array("id" => $key->id_categoria)));
+                $key->categoria = $categoria->categoria;
+            } else {
+                $key->categoria = null;
+            }
             $values[] = $key;
         }
         echo json_encode($values);
         break;
     case 'insertar_producto':
-        $_POST['imagen'] = null;
-        $_POST['id_usuario_creacion'] = $_SESSION['id'];
-        $_POST['id_usuario_modificacion'] = null;
-        $_POST['fecha_modificacion'] = null;
-        $_POST['fecha_creacion'] = date("Y-m-d H:i:s");
-        $_POST['estado'] = 0;
+        $producto = new Productos();
+        $producto->producto = $_POST['producto'];
+        $producto->id_categoria = $_POST['id_categoria'];
+        $producto->descripcion = $_POST['descripcion'];;
+        $producto->id_marca = $_POST['id_marca'];
+        $producto->codigo = $_POST['codigo'];
+        $producto->estado = 0;
 
-        if (empty($_POST['precio_unitario']) || is_null($_POST['precio_unitario']) || !isset($_POST['precio_unitario'])) {
-            $_POST['precio_unitario'] = 0;
-        }
-
-        echo $mono->insert_data("productos", $_POST, false);
+        echo $mono->insert_data_v2("productos", $producto);
         break;
     case 'editar_producto':
         echo $mono->select_one("productos", array("id" => $_POST['id']));
         break;
     case 'actualizar_producto':
-        $_POST['imagen'] = null;
-        $_POST['fecha_creacion'] = $_POST['fecha_creacion'];
-        $_POST['id_usuario_creacion'] = $_POST['id_usuario_creacion'];
-        $_POST['fecha_modificacion'] = date("Y-m-d H:i:s");
-        $_POST['id_usuario_modificacion'] = $_SESSION['id'];
-        echo $mono->update_data("productos", $_POST);
+        $producto = new Productos();
+        $producto->producto = $_POST['producto'];
+        $producto->id_categoria = $_POST['id_categoria'];
+        $producto->descripcion = $_POST['descripcion'];;
+        $producto->id_marca = $_POST['id_marca'];
+        $producto->codigo = $_POST['codigo'];
+        $producto->id = $_POST['id'];
+        echo $mono->update_data_v2("productos", $producto);
         break;
     case 'eliminar_producto':
-        $sql = "UPDATE productos SET estado = 1, id_usuario_modificacion = " . $_SESSION['id'] . ", fecha_modificacion = '" . date("Y-m-d H:i:s") . "' WHERE id = " . $_POST['id'];
+        $sql = "UPDATE productos SET estado = 1/*, id_usuario_modificacion = " . $_SESSION['id'] . ", fecha_modificacion = '" . date("Y-m-d H:i:s") . "'*/ WHERE id = " . $_POST['id'];
         echo $mono->executor($sql, "update");
         //echo $mono->delete_data("productos", array("id" => $_POST['id']));
         break;
@@ -248,16 +278,8 @@ switch ($accion) {
 
         if ($_POST['id_forma_pago'] == 2) {
             $cliente = json_decode($mono->select_one("clientes", array("id" => $_POST['id_cliente'])));
-            /*if ($cliente->saldo < $_POST['monto']) {
-                echo json_encode(array(
-                    "Result" => "ERROR",
-                    "Message" => "El cliente no tiene saldo suficiente"
-                ));
-                return;
-            } else {*/
             $sql = "UPDATE clientes SET saldo = saldo - " . $_POST['monto'] . ", id_usuario_modificacion = " . $_POST['id_usuario_modificacion'] . ", fecha_modificacion = '" . date("Y-m-d H:i:s") . "' WHERE id = " . $_POST['id_cliente'];
             $mono->executor($sql, "update");
-            //}
         }
         $venta = new Ventas();
         $venta->id_cliente = $_POST['id_cliente'];
@@ -532,20 +554,9 @@ switch ($accion) {
     case 'reporte_fecha':
 
         if ($_POST['id_sucursal'] > 0) {
-            /*$sql = "SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND fecha_creacion = '" . $_POST['fecha'] . "' UNION ALL SELECT COALESCE(SUM(monto), 0) AS cant FROM gastos WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND fecha_creacion = '" . $_POST['fecha'] . "'
-            UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND fecha_creacion = '" . $_POST['fecha'] . "' AND id_forma_pago = 3
-            UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND fecha_creacion = '" . $_POST['fecha'] . "' AND id_forma_pago = 4
-            UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND fecha_creacion = '" . $_POST['fecha'] . "' AND id_forma_pago = 1
-            UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND fecha_creacion = '" . $_POST['fecha'] . "' AND id_forma_pago = 2;";*/
-
             $sql_ventas = "SELECT SUM(cant) AS cant, id FROM (SELECT COALESCE(SUM(v.monto), 0) AS cant, fp.id FROM ventas v RIGHT JOIN formas_pagos fp ON v.id_forma_pago = fp.id AND date(v.fecha_creacion) = '" . $_POST['fecha'] . "' AND v.id_sucursal = " . $_POST['id_sucursal'] . " GROUP BY fp.id UNION ALL SELECT COALESCE(sum(r.monto), 0) AS cant, fp.id FROM recargas r RIGHT JOIN formas_pagos fp ON r.id_forma_pago = fp.id AND r.fecha = '" . $_POST['fecha'] . "' JOIN clientes c ON c.id = r.id_cliente AND c.id_sucursal = " . $_POST['id_sucursal'] . " GROUP BY fp.id) AS tb1 GROUP BY id;";
             $sql_gastos = "SELECT COALESCE(SUM(monto), 0) AS cant FROM gastos WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND fecha = '" . $_POST['fecha'] . "'";
         } else {
-            /*$sql = "SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE fecha_creacion = '" . $_POST['fecha'] . "' UNION ALL SELECT COALESCE(SUM(monto), 0) AS cant FROM gastos WHERE fecha_creacion = '" . $_POST['fecha'] . "'
-            UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE fecha_creacion = '" . $_POST['fecha'] . "' AND id_forma_pago = 3
-            UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE fecha_creacion = '" . $_POST['fecha'] . "' AND id_forma_pago = 4
-            UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE fecha_creacion = '" . $_POST['fecha'] . "' AND id_forma_pago = 1
-            UNION ALL  SELECT COALESCE(SUM(monto), 0) AS cant FROM ventas WHERE fecha_creacion = '" . $_POST['fecha'] . "' AND id_forma_pago = 2;";*/
 
             $sql_ventas = "SELECT SUM(cant) AS cant, id FROM (SELECT COALESCE(SUM(v.monto), 0) AS cant, fp.id FROM ventas v RIGHT JOIN formas_pagos fp ON v.id_forma_pago = fp.id AND date(v.fecha_creacion) = '" . $_POST['fecha'] . "' GROUP BY fp.id UNION ALL SELECT COALESCE(sum(r.monto), 0) AS cant, fp.id FROM recargas r RIGHT JOIN formas_pagos fp ON r.id_forma_pago = fp.id AND r.fecha = '" . $_POST['fecha'] . "' GROUP BY fp.id) AS tb1 GROUP BY id;";
             $sql_gastos = "SELECT COALESCE(SUM(monto), 0) AS cant FROM gastos WHERE fecha = '" . $_POST['fecha'] . "'";
@@ -553,7 +564,6 @@ switch ($accion) {
         //echo $sql;
         $ventas = json_decode($mono->run_query($sql_ventas));
         $gastos = json_decode($mono->run_query($sql_gastos));
-        //$acumulado = json_decode($mono->run_query("SELECT COALESCE(sum(v.monto), 0) cant, DATE(v.fecha_creacion) fecha, 'V' tipo FROM ventas AS v GROUP BY fecha UNION ALL SELECT COALESCE(SUM(g.monto), 0) cant, DATE(g.fecha) fecha, 'G' tipo FROM gastos AS g GROUP BY fecha/* UNION ALL SELECT COALESCE(SUM(r.monto), 0) cant, DATE(r.fecha) fecha, 'R' tipo FROM recargas AS r GROUP BY fecha*/ ORDER BY fecha DESC;"));
         $acumulado = json_decode($mono->run_query("select sum(cant) as cant, fecha, 'V' tipo FROM (SELECT COALESCE(sum(v.monto), 0) cant, DATE(v.fecha_creacion) fecha, 'V' tipo FROM ventas AS v GROUP BY fecha UNION ALL SELECT COALESCE(SUM(r.monto), 0) cant, DATE(r.fecha) fecha, 'R' tipo FROM recargas AS r GROUP BY fecha ORDER BY fecha DESC) as G GROUP by fecha union all SELECT COALESCE(SUM(g.monto), 0) cant, DATE(g.fecha) fecha, 'G' tipo FROM gastos AS g GROUP BY fecha ORDER BY fecha DESC;"));
         $values = array();
         $values['ventas'] = $ventas;
@@ -561,6 +571,42 @@ switch ($accion) {
         $values['acumulado'] = $acumulado;
         echo json_encode($values);
         break;
+
+
+    case 'lista_proveedores':
+        echo $mono->select_all("proveedores", true);
+        break;
+    case 'insertar_proveedor':
+        $proveedor = new Proveedor();
+        $proveedor->nombres = $_POST['nombres'];
+        $proveedor->n_documento = $_POST['n_documento'];
+        $proveedor->direccion = $_POST['direccion'];;
+        $proveedor->telefono = $_POST['telefono'];
+        $proveedor->email = $_POST['email'];
+        echo $mono->insert_data_v2("proveedores", $proveedor);
+        break;
+    case 'editar_proveedor':
+        echo $mono->select_one("proveedores", array("id" => $_POST['id']));
+        break;
+    case 'actualizar_proveedor':
+        /*$_POST['fecha_creacion'] = $_POST['fecha_creacion'];
+        $_POST['id_usuario_creacion'] = $_POST['id_usuario_creacion'];
+        $_POST['fecha_modificacion'] = date("Y-m-d H:i:s");
+        $_POST['id_usuario_modificacion'] = $_SESSION['id'];*/
+
+        $proveedor = new Proveedor();
+        $proveedor->nombres = $_POST['nombres'];
+        $proveedor->n_documento = $_POST['n_documento'];
+        $proveedor->direccion = $_POST['direccion'];;
+        $proveedor->telefono = $_POST['telefono'];
+        $proveedor->email = $_POST['email'];
+        $proveedor->id = $_POST['id'];
+        echo $mono->update_data_v2("proveedores", $proveedor);
+        break;
+    case 'eliminar_proveedor':
+        echo $mono->delete_data("proveedores", array("id" => $_POST['id']));
+        break;
+
     default:
         # code...
         break;
