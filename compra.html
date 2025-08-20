@@ -13,7 +13,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
 
-    <title>Inventarios DB - Nueva Venta</title>
+    <title>Inventarios DB - Nueva Compra</title>
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -98,17 +98,30 @@
             </div>
 
             <!-- Nav Item - Pages Collapse Menu -->
-            <li class="nav-item active">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePOS"
-                    aria-expanded="true" aria-controls="collapsePOS">
+            <li class="nav-item">
+                <a class="nav-link " href="#" data-toggle="collapse" data-target="#collapsePOS" aria-expanded="true"
+                    aria-controls="collapsePOS">
                     <i class="fas fa-fw fa-folder"></i>
                     <span>Ventas</span>
                 </a>
-                <div id="collapsePOS" class="collapse show" aria-labelledby="headingPages"
+                <div id="collapsePOS" class="collapse " aria-labelledby="headingPages" data-parent="#accordionSidebar">
+                    <div class="bg-brown py-2 collapse-inner rounded">
+                        <a class="collapse-item " href="venta.html">Nueva Venta</a>
+                        <a class="collapse-item" href="ventas.html">Lista Ventas</a>
+                    </div>
+                </div>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseCompras"
+                    aria-expanded="true" aria-controls="collapseCompras">
+                    <i class="fas fa-fw fa-folder"></i>
+                    <span>Compras</span>
+                </a>
+                <div id="collapseCompras" class="collapse show" aria-labelledby="headingPages"
                     data-parent="#accordionSidebar">
                     <div class="bg-brown py-2 collapse-inner rounded">
-                        <a class="collapse-item active" href="venta.html">Nueva Venta</a>
-                        <a class="collapse-item" href="ventas.html">Lista Ventas</a>
+                        <a class="collapse-item active" href="compra.html">Nueva Compra</a>
+                        <a class="collapse-item" href="compras.html">Lista Compras</a>
                     </div>
                 </div>
             </li>
@@ -202,58 +215,85 @@
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
-                    <h1 class="h3 mb-4 text-gray-800">Nueva Venta</h1>
+                    <h1 class="h3 mb-4 text-gray-800">Nueva Compra</h1>
                     <div class="row">
                         <div class="col-md-12 row">
-                            <div class="form-group col-md-4 my-2">
-                                <label>Cliente</label>
-                            </div>
-                            <div class="form-group col-md-4 my-2">
-                                <label for="producto">Producto</label>
+                            <div class="form-group col-md-3 my-2">
+                                <label for="id_proveedor">Proveedor</label>
                             </div>
                             <div class="form-group col-md-3 my-2">
-                                <label for="cantidad">Cantidad</label>
+                                <label for="fecha">Fecha Compra</label>
                             </div>
-                            <div class="form-group col-md-1 my-2"></div>
-                            <div class="form-group col-md-4 my-2">
+                            <div class="form-group col-md-3 my-2">
+                                <label for="id_tipo_documento">Tipo de Documento</label>
+                            </div>
+                            <div class="form-group col-md-3 my-2">
+                                <label for="id_forma_pago">Forma de Pago</label>
+                            </div>
+                            <div class="form-group col-md-3 my-2">
 
                                 <div class="input-group mb-3" style="display: flex;">
-                                    <select name="" id="id_cliente" class="form-control">
+                                    <select name="" id="id_proveedor" class="form-control">
                                         <option value="0">--SELECCIONE--</option>
                                     </select>
                                 </div>
                             </div>
 
-                            <div class="form-group col-md-4 my-2">
-
+                            <div class="form-group col-md-3 my-2">
                                 <div class="input-group mb-3" style="display: flex;">
-                                    <input type="text" class="form-control" id="producto">
+                                    <input type="text" class="form-control fecha" id="fecha">
                                 </div>
                             </div>
                             <div class="form-group col-md-3 my-2">
-
-                                <div class="input-group mb-3" style="display: flex;">
-                                    <input type="text" class="form-control" id="cantidad">
-                                </div>
+                                <select class="form-control" id="id_tipo_documento" name="id_tipo_documento">
+                                    <option value="0">--SELECCIONE--</option>
+                                </select>
                             </div>
-                            <div class="form-group col-md-1 my-2">
-                                <span class="btn btn-outline-success w-100" id="add-item">
-                                    <i class="fa fa-check"></i>
-                                </span>
+                            <div class="form-group col-md-3 my-2">
+                                <select class="form-control" id="id_forma_pago" name="id_forma_pago">
+                                    <option value="0">--SELECCIONE--</option>
+                                </select>
                             </div>
                             <hr class="w-100">
-                            <div class="w-100 col-md-3" id="div_lista_ventas">
+                            <div class="row col-md-12">
+                                <div class="form-group col-md-5 my-2">
+                                    <label for="producto">Producto</label>
+                                </div>
+                                <div class="form-group col-md-3 my-2">
+                                    <label for="cantidad">Cantidad</label>
+                                </div>
+                                <div class="col-md-3 my-2">
+                                    <label for="precio">Precio</label>
+                                </div>
+                                <div class="form-group col-md-1 my-2">
+                                </div>
+                                <div class="form-group col-md-5 my-2">
+                                    <div class="input-group mb-3" style="display: flex;">
+                                        <input type="text" class="form-control" id="producto">
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-3 my-2">
+                                    <div class="input-group mb-3" style="display: flex;">
+                                        <input type="text" class="form-control" id="cantidad">
+                                    </div>
+                                </div>
+                                <div class="col-md-3 my-2">
+                                    <div class="input-group mb-3" style="display: flex;">
+                                        <input type="text" class="form-control" id="precio">
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-1 my-2">
+                                    <span class="btn btn-outline-success w-100" id="add-item">
+                                        <i class="fa fa-plus"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="w-100 col-md-6" id="div_lista_ventas">
                                 <div class="order-empty" style="text-align: center; margin: 48px; color: #DDD;">
                                     <i class="fa fa-shopping-cart" role="img" aria-label="Shopping cart"
                                         title="Shopping cart" style="font-size: 64px;"></i>
                                     <h1 style="font-size: 20px;">La lista esta vacia.</h1>
                                 </div>
-                            </div>
-                            <div class="form-group col-md-3 my-2">
-                                <label>Forma de Pago</label>
-                                <select class="form-control" id="id_forma_pago" name="id_forma_pago">
-                                    <option value="0">--SELECCIONE--</option>
-                                </select>
                             </div>
                             <div class="col-md-6">
                                 <table class="table">
@@ -267,11 +307,29 @@
                                                 <input type="hidden" name="" readonly id="total" class="form-control">
                                             </td>
                                         </tr>
+                                        <tr>
+                                            <th scope="row" width="50%" style="text-align: right;">
+                                                Sub Total:
+                                            </th>
+                                            <td id="">
+                                                <span id="subtotal_detalle_span">S/ </span>
+                                                <input type="hidden" name="" readonly id="subtotal" class="form-control">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" width="50%" style="text-align: right;">
+                                                IGV:
+                                            </th>
+                                            <td id="">
+                                                <span id="igv_detalle_span">S/ </span>
+                                                <input type="hidden" name="" readonly id="igv" class="form-control">
+                                            </td>
+                                        </tr>
                                     </tbody>
                                 </table>
                                 <hr>
                                 <div class="w-100 text-center">
-                                    <button class="btn btn-success" id="guardar_venta">Guardar Venta</button>
+                                    <button class="btn btn-success" id="guardar_compra">Guardar Compra</button>
                                     <button class="btn btn-danger" onclick="limpiar_formulario();">Cancelar</button>
                                 </div>
                             </div>
@@ -324,7 +382,7 @@
     <script src="js/util.js"></script>
     <script src="https://code.jquery.com/ui/1.14.1/jquery-ui.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="js/venta.js"></script>
+    <script src="js/compra.js"></script>
 </body>
 
 </html>

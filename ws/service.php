@@ -14,6 +14,9 @@ include('models/Ventas.php');
 include('models/Movimientos.php');
 include('models/Productos.php');
 include('models/Proveedor.php');
+include('models/Compra.php');
+include('models/Colaborador.php');
+include('models/Usuario.php');
 require __DIR__ . '/simplexlsx/src/SimpleXLSX.php';
 require 'jwt.php';
 
@@ -106,17 +109,11 @@ switch ($accion) {
         $data = json_decode($mono->select_all("usuarios", true));
         $values = array();
         foreach ($data as $key) {
-            $sucursal = json_decode($mono->select_one("sucursales", array("id" => $key->id_sucursal)));
-            $rol = json_decode($mono->select_one("roles", array("id" => $key->id_rol)));
-            if (empty($sucursal) || is_null($sucursal)) {
-                $key->sucursal = "";
+            $colaborador = json_decode($mono->select_one("colaboradores", array("id" => $key->id_colaborador)));
+            if (empty($colaborador) || is_null($colaborador)) {
+                $key->colaborador = "";
             } else {
-                $key->sucursal = $sucursal->sucursal;
-            }
-            if (empty($rol) || is_null($rol)) {
-                $key->rol = "";
-            } else {
-                $key->rol = $rol->rol;
+                $key->colaborador = $colaborador;
             }
             unset($key->pass);
             $values[] = $key;
@@ -124,15 +121,17 @@ switch ($accion) {
         echo json_encode($values);
         break;
     case 'insertar_usuario':
-        $_POST['id_usuario_creacion'] = $_SESSION['id'];
-        $_POST['id_usuario_modificacion'] = null;
-        $_POST['fecha_modificacion'] = null;
-        $_POST['fecha_creacion'] = date("Y-m-d H:i:s");
+        $usuario = new Usuario;
+        $usuario->usuario = $_POST['usuario'];
+
+        $usuario->id_colaborador = $_POST['id_colaborador'];
+        $usuario->id_usuario_creacion = $_SESSION['id'];
         if (empty($_POST['pass']) || is_null($_POST['pass'])) {
         } else {
             $_POST['pass'] = md5($_POST['pass']);
         }
-        echo $mono->insert_data("usuarios", $_POST, false);
+        $usuario->pass = $_POST['pass'];
+        echo $mono->insert_data_v2("usuarios", $usuario);
         break;
     case 'editar_usuario':
         $data = json_decode($mono->select_one("usuarios", array("id" => $_POST['id'])));
@@ -140,17 +139,16 @@ switch ($accion) {
         echo json_encode($data);
         break;
     case 'actualizar_usuario':
-        $_POST['fecha_creacion'] = $_POST['fecha_creacion'];
-        $_POST['id_usuario_creacion'] = $_POST['id_usuario_creacion'];
-        $_POST['fecha_modificacion'] = date("Y-m-d H:i:s");
-        $_POST['id_usuario_modificacion'] = $_SESSION['id'];
-        if (empty($_POST['pass']) || is_null($_POST['pass'])) {
-            $data = json_decode($mono->select_one("usuarios", array("id" => $_POST['id'])));
-            $_POST['pass'] = $data->pass;
-        } else {
-            $_POST['pass'] = md5($_POST['pass']);
+        $usuario = new Usuario;
+        $usuario->usuario = $_POST['usuario'];
+        $usuario->id = $_POST['id'];
+        $usuario->id_colaborador = $_POST['id_colaborador'];
+        $usuario->id_usuario_modificacion = $_SESSION['id'];
+        $usuario->fecha_modificacion = date("Y-m-d H:i:s");
+        if (!empty($_POST['pass']) && !is_null($_POST['pass'])) {
+            $usuario->pass = md5($_POST['pass']);
         }
-        echo $mono->update_data("usuarios", $_POST);
+        echo $mono->update_data_v2("usuarios", $usuario);
         break;
     case 'eliminar_usuario':
         echo $mono->delete_data("usuarios", array("id" => $_POST['id']));
@@ -257,30 +255,22 @@ switch ($accion) {
     case 'eliminar_producto':
         $sql = "UPDATE productos SET estado = 1/*, id_usuario_modificacion = " . $_SESSION['id'] . ", fecha_modificacion = '" . date("Y-m-d H:i:s") . "'*/ WHERE id = " . $_POST['id'];
         echo $mono->executor($sql, "update");
-        //echo $mono->delete_data("productos", array("id" => $_POST['id']));
         break;
     case 'lista_productos_categoria':
         $sql = 'SELECT p.*, ps.precio_unitario, ps.stock FROM productos p JOIN producto_sucursal ps ON p.id = ps.id_producto AND ps.id_sucursal = ' . $_SESSION['id_sucursal'] . ' WHERE p.id_categoria = ' . $_POST['id_categoria'] . " AND p.estado = 0";
         echo $mono->run_query($sql);
         break;
 
-
     case 'lista_formas_pagos':
         echo $mono->select_all("formas_pagos", true);
         break;
-
+    case 'lista_tipos_documentos':
+        echo $mono->select_all("tipos_documentos", true);
+        break;
+    case 'lista_tipos_documentos_identificacion':
+        echo $mono->select_all("tipos_documentos_identificacion", true);
+        break;
     case 'guardar_venta':
-        $_POST['id_usuario_creacion'] = $_SESSION['id'];
-        $_POST['id_usuario_modificacion'] = $_SESSION['id'];
-        $_POST['fecha_modificacion'] = null;
-        $_POST['fecha_creacion'] = date("Y-m-d H:i:s");
-        $_POST['estado'] = 0;
-
-        if ($_POST['id_forma_pago'] == 2) {
-            $cliente = json_decode($mono->select_one("clientes", array("id" => $_POST['id_cliente'])));
-            $sql = "UPDATE clientes SET saldo = saldo - " . $_POST['monto'] . ", id_usuario_modificacion = " . $_POST['id_usuario_modificacion'] . ", fecha_modificacion = '" . date("Y-m-d H:i:s") . "' WHERE id = " . $_POST['id_cliente'];
-            $mono->executor($sql, "update");
-        }
         $venta = new Ventas();
         $venta->id_cliente = $_POST['id_cliente'];
         $venta->id_sucursal = $_SESSION['id_sucursal'];
@@ -490,9 +480,11 @@ switch ($accion) {
             ];
             $token = generateJWT($payload, $secret_key);
 
+            $colaborador = json_decode($mono->select_one("colaboradores", array("id" => $user->id_colaborador)));
+
             $_SESSION['id'] = $user->id;
-            $_SESSION['nombres'] = $user->nombres;
-            $_SESSION['id_sucursal'] = $user->id_sucursal;
+            $_SESSION['nombres'] = $colaborador->nombres;
+            $_SESSION['id_sucursal'] = 1; //$colaborador->id_sucursal;
             echo json_encode(array(
                 "Result" => "OK",
                 "Token" => $token
@@ -548,7 +540,7 @@ switch ($accion) {
         echo $mono->run_query($sql);
         break;
     case 'autocomplete':
-        $sql = 'SELECT p.*, p.precio_unitario FROM productos p WHERE p.producto LIKE "%' . $_GET['search'] . '%" AND (p.estado is null or estado = 0)';
+        $sql = 'SELECT p.* FROM productos p WHERE p.producto LIKE "%' . $_GET['search'] . '%" AND (p.estado is null or estado = 0)';
         echo $mono->run_query($sql);
         break;
     case 'reporte_fecha':
@@ -557,7 +549,6 @@ switch ($accion) {
             $sql_ventas = "SELECT SUM(cant) AS cant, id FROM (SELECT COALESCE(SUM(v.monto), 0) AS cant, fp.id FROM ventas v RIGHT JOIN formas_pagos fp ON v.id_forma_pago = fp.id AND date(v.fecha_creacion) = '" . $_POST['fecha'] . "' AND v.id_sucursal = " . $_POST['id_sucursal'] . " GROUP BY fp.id UNION ALL SELECT COALESCE(sum(r.monto), 0) AS cant, fp.id FROM recargas r RIGHT JOIN formas_pagos fp ON r.id_forma_pago = fp.id AND r.fecha = '" . $_POST['fecha'] . "' JOIN clientes c ON c.id = r.id_cliente AND c.id_sucursal = " . $_POST['id_sucursal'] . " GROUP BY fp.id) AS tb1 GROUP BY id;";
             $sql_gastos = "SELECT COALESCE(SUM(monto), 0) AS cant FROM gastos WHERE id_sucursal = " . $_POST['id_sucursal'] . " AND fecha = '" . $_POST['fecha'] . "'";
         } else {
-
             $sql_ventas = "SELECT SUM(cant) AS cant, id FROM (SELECT COALESCE(SUM(v.monto), 0) AS cant, fp.id FROM ventas v RIGHT JOIN formas_pagos fp ON v.id_forma_pago = fp.id AND date(v.fecha_creacion) = '" . $_POST['fecha'] . "' GROUP BY fp.id UNION ALL SELECT COALESCE(sum(r.monto), 0) AS cant, fp.id FROM recargas r RIGHT JOIN formas_pagos fp ON r.id_forma_pago = fp.id AND r.fecha = '" . $_POST['fecha'] . "' GROUP BY fp.id) AS tb1 GROUP BY id;";
             $sql_gastos = "SELECT COALESCE(SUM(monto), 0) AS cant FROM gastos WHERE fecha = '" . $_POST['fecha'] . "'";
         }
@@ -572,41 +563,151 @@ switch ($accion) {
         echo json_encode($values);
         break;
 
-
     case 'lista_proveedores':
         echo $mono->select_all("proveedores", true);
         break;
     case 'insertar_proveedor':
         $proveedor = new Proveedor();
-        $proveedor->nombres = $_POST['nombres'];
+        $proveedor->razon_social = $_POST['razon_social'];
         $proveedor->n_documento = $_POST['n_documento'];
         $proveedor->direccion = $_POST['direccion'];;
         $proveedor->telefono = $_POST['telefono'];
         $proveedor->email = $_POST['email'];
+        $proveedor->id_tipo_documento = $_POST['id_tipo_documento'];
         echo $mono->insert_data_v2("proveedores", $proveedor);
         break;
     case 'editar_proveedor':
         echo $mono->select_one("proveedores", array("id" => $_POST['id']));
         break;
     case 'actualizar_proveedor':
-        /*$_POST['fecha_creacion'] = $_POST['fecha_creacion'];
-        $_POST['id_usuario_creacion'] = $_POST['id_usuario_creacion'];
-        $_POST['fecha_modificacion'] = date("Y-m-d H:i:s");
-        $_POST['id_usuario_modificacion'] = $_SESSION['id'];*/
-
         $proveedor = new Proveedor();
-        $proveedor->nombres = $_POST['nombres'];
+        $proveedor->razon_social = $_POST['razon_social'];
         $proveedor->n_documento = $_POST['n_documento'];
         $proveedor->direccion = $_POST['direccion'];;
         $proveedor->telefono = $_POST['telefono'];
         $proveedor->email = $_POST['email'];
+        $proveedor->id_tipo_documento = $_POST['id_tipo_documento'];
         $proveedor->id = $_POST['id'];
         echo $mono->update_data_v2("proveedores", $proveedor);
         break;
     case 'eliminar_proveedor':
         echo $mono->delete_data("proveedores", array("id" => $_POST['id']));
         break;
+    case 'guardar_compra':
+        $compra = new Compra();
+        $compra->id_proveedor = $_POST['id_proveedor'];
+        $compra->fecha = $_POST['fecha'];
+        $compra->total = $_POST['total'];
+        $compra->subtotal = $_POST['subtotal'];
+        $compra->igv = $_POST['igv'];
+        $compra->id_forma_pago = $_POST['id_forma_pago'];
+        $compra->id_tipo_documento = $_POST['id_tipo_documento'];
 
+        $res = json_decode($mono->insert_data_v2("compras", $compra));
+
+        $LID = $res->LID;
+        $codigos_carro = $_POST['codigos_carro'];
+        $cantidades = $_POST['cantidades'];
+        $precios = $_POST['precios'];
+
+        $compraDetalle = new DetalleCompra;
+        $movimientos = new Movimientos;
+        foreach ($codigos_carro as $i => $codigo) {
+            $compraDetalle->id_compra = $LID;
+            $compraDetalle->id_producto = $codigo;
+            $compraDetalle->precio_unitario = $precios[$i];
+            $compraDetalle->cantidad = $cantidades[$i];
+
+            $r1 = $mono->insert_data_v2("detalle_compras", $compraDetalle);
+        }
+
+        echo json_encode(array("Result" => "OK"));
+        break;
+    case 'lista_compras':
+        $sql = "SELECT v.*, c.nombres, s.sucursal, v.fecha as fecha, f.forma_pago, td.tipo_documento FROM compras AS v LEFT JOIN proveedores AS c ON c.id = v.id_proveedor LEFT JOIN sucursales AS s ON s.id = v.id_sucursal LEFT JOIN formas_pagos AS f ON f.id = v.id_forma_pago JOIN tipos_documentos AS td ON td.id = v.id_tipo_documento WHERE date(v.fecha) BETWEEN '" . $_POST['fecha_desde'] . "' AND '" . $_POST['fecha_hasta'] . "'";
+        echo $mono->run_query($sql);
+        break;
+
+    case 'lista_almacenes':
+        $data = json_decode($mono->select_all("almacenes", true));
+        $values = array();
+        foreach ($data as $key) {
+            $sucursal = json_decode($mono->select_one("sucursales", array("id" => $key->id_sucursal)));
+
+            if (empty($sucursal) || is_null($sucursal)) {
+                $key->sucursal = '';
+            } else {
+                $key->sucursal = $sucursal->sucursal;
+            }
+            $values[] = $key;
+        }
+        echo json_encode($values);
+        break;
+    case 'editar_almacen':
+        echo $mono->select_one("almacenes", array("id" => $_POST['id']));
+        break;
+    case 'actualizar_almacen':
+        echo $mono->update_data("almacenes", $_POST);
+        break;
+    case 'eliminar_almacen':
+        echo $mono->delete_data("almacenes", array("id" => $_POST['id']));
+        break;
+    case 'insertar_almacen':
+        echo $mono->insert_data("almacenes", $_POST, false);
+        break;
+
+    case 'lista_colaboradores':
+        $data = json_decode($mono->select_all("colaboradores", true));
+        $values = array();
+        foreach ($data as $key) {
+            $rol = json_decode($mono->select_one("roles", array("id" => $key->id_rol)));
+            if (empty($sucursal) || is_null($sucursal)) {
+                $key->sucursal = "";
+            } else {
+                $key->sucursal = $sucursal->sucursal;
+            }
+            if (empty($rol) || is_null($rol)) {
+                $key->rol = "";
+            } else {
+                $key->rol = $rol->rol;
+            }
+            $values[] = $key;
+        }
+        echo json_encode($values);
+        break;
+    case 'insertar_colaborador':
+        $colaborador = new Colaborador;
+        $colaborador->nombres = $_POST['nombres'];
+        $colaborador->email = $_POST['email'];
+        $colaborador->id_rol = $_POST['id_rol'];
+        $colaborador->n_documento = $_POST['n_documento'];
+        $colaborador->apellido_paterno = $_POST['apellido_paterno'];
+        $colaborador->apellido_materno = $_POST['apellido_materno'];
+        $colaborador->id_tipo_documento = $_POST['id_tipo_documento'];
+        $colaborador->fecha_nacimiento = $_POST['fecha_nacimiento'];
+        $colaborador->celular = $_POST['celular'];
+        echo $mono->insert_data_v2("colaboradores", $colaborador);
+        break;
+    case 'editar_colaborador':
+        echo $mono->select_one("colaboradores", array("id" => $_POST['id']));
+        break;
+    case 'actualizar_colaborador':
+        $colaborador = new Colaborador;
+        $colaborador->nombres = $_POST['nombres'];
+        $colaborador->email = $_POST['email'];
+        $colaborador->id_rol = $_POST['id_rol'];
+        $colaborador->n_documento = $_POST['n_documento'];
+        $colaborador->apellido_paterno = $_POST['apellido_paterno'];
+        $colaborador->apellido_materno = $_POST['apellido_materno'];
+        $colaborador->id_tipo_documento = $_POST['id_tipo_documento'];
+        $colaborador->fecha_nacimiento = $_POST['fecha_nacimiento'];
+        $colaborador->celular = $_POST['celular'];
+        $colaborador->id = $_POST['id'];
+        echo $mono->update_data_v2("colaboradores", $colaborador);
+        break;
+    case 'eliminar_colaborador':
+        echo $mono->delete_data("colaboradores", array("id" => $_POST['id']));
+        break;
     default:
         # code...
         break;

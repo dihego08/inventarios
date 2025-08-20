@@ -72,6 +72,7 @@
                         <a class="collapse-item" href="categorias.html">Categorias</a>
                         <a class="collapse-item" href="marcas.html">Marcas</a>
                         <a class="collapse-item" href="gastos.html">Gastos</a>
+                        <a class="collapse-item" href="almacenes.html">Almacenes</a>
                     </div>
                 </div>
             </li>
@@ -200,10 +201,7 @@
                                 <thead>
                                     <th>Id</th>
                                     <th>Nombres</th>
-                                    <th>DNI</th>
-                                    <th>Sucursal</th>
                                     <th>Usuario</th>
-                                    <th>Rol</th>
                                     <th width="5%"></th>
                                 </thead>
                                 <tbody></tbody>
@@ -246,20 +244,10 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-12">
-                            <label for="nombres">Nombres</label>
-                            <input type="text" class="form-control" id="nombres">
-                        </div>
-                        <div class="col-md-4">
-                            <label for="dni">DNI</label>
-                            <input type="text" class="form-control" id="dni">
-                        </div>
-                        <div class="col-md-4">
-                            <label for="id_sucursal">Sucursal</label>
-                            <select name="" id="id_sucursal" class="form-control"></select>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="id_rol">Rol</label>
-                            <select name="" id="id_rol" class="form-control"></select>
+                            <label for="id_colaborador">Colaborador</label>
+                            <select name="" id="id_colaborador" class="form-control">
+                                <option value="0">--SELECCIONE--</option>
+                            </select>
                         </div>
                         <div class="col-md-12">
                             <label for="usuario">Usuario</label>

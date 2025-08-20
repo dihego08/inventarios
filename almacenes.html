@@ -13,7 +13,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
 
-    <title>Inventarios DB - Categorías</title>
+    <title>Inventarios DB - Almacenes</title>
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -69,10 +69,10 @@
                         <a class="collapse-item" href="usuarios.html">Usuarios</a>
                         <a class="collapse-item" href="proveedores.html">Proveedores</a>
                         <a class="collapse-item" href="productos.html">Productos</a>
-                        <a class="collapse-item active" href="categorias.html">Categorias</a>
+                        <a class="collapse-item" href="categorias.html">Categorias</a>
                         <a class="collapse-item" href="marcas.html">Marcas</a>
                         <a class="collapse-item" href="gastos.html">Gastos</a>
-                        <a class="collapse-item" href="almacenes.html">Almacenes</a>
+                        <a class="collapse-item active" href="almacenes.html">Almacenes</a>
                     </div>
                 </div>
             </li>
@@ -188,18 +188,19 @@
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
-                    <h1 class="h3 mb-4 text-gray-800">Categorías</h1>
+                    <h1 class="h3 mb-4 text-gray-800">Almacenes</h1>
 
                     <div class="row">
                         <div class="col-md-12 text-right mb-3">
                             <span class="btn btn-outline-primary btn-rounded" data-toggle="modal"
-                                data-target="#formulario" onclick="nueva_categoria();"><i class="fa fa-plus"></i> Nueva Categoría</span>
+                                data-target="#formulario" onclick="nuevo_almacen();"><i class="fa fa-plus"></i> Nuevo Almacén</span>
                         </div>
                         <div class="table-response w-100">
-                            <table class="table table-bordered table-striped" id="tabla-categorias">
+                            <table class="table table-bordered table-striped" id="tabla-almacenes">
                                 <thead>
                                     <th>Id</th>
-                                    <th>Categoría</th>
+                                    <th>Almacén</th>
+                                    <th>Sucursal</th>
                                     <th width="5%"></th>
                                 </thead>
                                 <tbody></tbody>
@@ -234,7 +235,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="categoriaModalLabel"></h5>
+                    <h5 class="modal-title" id="almacenModalLabel"></h5>
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
@@ -242,14 +243,20 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-12">
-                            <label for="categoria">Categoría</label>
-                            <input type="text" class="form-control" id="categoria">
+                            <label for="almacen">Almacén</label>
+                            <input type="text" class="form-control" id="almacen">
+                        </div>
+                        <div class="col-md-12 mt-1">
+                            <label for="id_sucursal">Sucursal</label>
+                            <select name="" id="id_sucursal" class="form-control">
+                                <option value="0">--SELECCIONE--</option>
+                            </select>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
-                    <span class="btn btn-outline-success" id="btn-accion-categoria">Guardar</span>
+                    <span class="btn btn-outline-success" id="btn-accion-almacen">Guardar</span>
                 </div>
             </div>
         </div>
@@ -274,7 +281,7 @@
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/themes/default.min.css" />
 
     <script src="js/util.js"></script>
-    <script src="js/categorias.js"></script>
+    <script src="js/almacenes.js"></script>
 </body>
 
 </html>

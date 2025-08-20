@@ -8,12 +8,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
+
     <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
-
-    <title>Inventarios DB - Categorías</title>
+    <title>Inventarios DB - Colaboradores</title>
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -23,7 +23,20 @@
 
     <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.min.css"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
+    <style>
+        .modal {
+            z-index: 1050;
+        }
 
+        .modal-backdrop {
+            z-index: 1040;
+            /* Fondo del modal */
+        }
+    </style>
 </head>
 
 <body id="page-top">
@@ -63,13 +76,15 @@
                     <i class="fas fa-fw fa-folder"></i>
                     <span>Control</span>
                 </a>
-                <div id="collapsePages" class="collapse show" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+                <div id="collapsePages" class="collapse show" aria-labelledby="headingPages"
+                    data-parent="#accordionSidebar">
                     <div class="bg-brown py-2 collapse-inner rounded">
+                        <a class="collapse-item active" href="colaboradores.html">Colaboradores</a>
                         <a class="collapse-item" href="sucursales.html">Sucursales</a>
                         <a class="collapse-item" href="usuarios.html">Usuarios</a>
                         <a class="collapse-item" href="proveedores.html">Proveedores</a>
                         <a class="collapse-item" href="productos.html">Productos</a>
-                        <a class="collapse-item active" href="categorias.html">Categorias</a>
+                        <a class="collapse-item" href="categorias.html">Categorias</a>
                         <a class="collapse-item" href="marcas.html">Marcas</a>
                         <a class="collapse-item" href="gastos.html">Gastos</a>
                         <a class="collapse-item" href="almacenes.html">Almacenes</a>
@@ -87,8 +102,8 @@
 
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
-                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapsePOS"
-                    aria-expanded="true" aria-controls="collapsePOS">
+                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapsePOS" aria-expanded="true"
+                    aria-controls="collapsePOS">
                     <i class="fas fa-fw fa-folder"></i>
                     <span>Ventas</span>
                 </a>
@@ -109,8 +124,8 @@
 
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
-                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseStock"
-                    aria-expanded="true" aria-controls="collapseStock">
+                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseStock" aria-expanded="true"
+                    aria-controls="collapseStock">
                     <i class="fas fa-fw fa-folder"></i>
                     <span>Stocks</span>
                 </a>
@@ -124,6 +139,7 @@
                 </div>
             </li>
 
+            <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
 
             <!-- Sidebar Toggler (Sidebar) -->
@@ -141,7 +157,8 @@
             <div id="content">
 
                 <!-- Topbar -->
-                <nav class="navbar navbar-expand navbar-light bg-brown-alt topbar mb-4 static-top shadow" style="box-shadow: 0px 2px 8px 2px #313131 !important;">
+                <nav class="navbar navbar-expand navbar-light bg-brown-alt topbar mb-4 static-top shadow"
+                    style="box-shadow: 0px 2px 8px 2px #313131 !important;">
 
                     <!-- Sidebar Toggle (Topbar) -->
                     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
@@ -188,18 +205,27 @@
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
-                    <h1 class="h3 mb-4 text-gray-800">Categorías</h1>
+                    <h1 class="h3 mb-4 text-gray-800">Colaboradores</h1>
 
                     <div class="row">
                         <div class="col-md-12 text-right mb-3">
                             <span class="btn btn-outline-primary btn-rounded" data-toggle="modal"
-                                data-target="#formulario" onclick="nueva_categoria();"><i class="fa fa-plus"></i> Nueva Categoría</span>
+                                data-target="#formulario" onclick="nuevo_colaborador();"><i class="fa fa-plus"></i> Nuevo
+                                Colaborador</span>
                         </div>
                         <div class="table-response w-100">
-                            <table class="table table-bordered table-striped" id="tabla-categorias">
+                            <table class="table table-bordered table-striped" id="tabla-colaboradores">
                                 <thead>
                                     <th>Id</th>
-                                    <th>Categoría</th>
+                                    <th>Nombres</th>
+                                    <th>Ap. Paterno</th>
+                                    <th>Ap. Materno</th>
+                                    <th>Tipo Documento</th>
+                                    <th>N° Documento</th>
+                                    <th>Correo</th>
+                                    <th>Celular</th>
+                                    <th>Fec. Nacimiento</th>
+                                    <th>Rol</th>
                                     <th width="5%"></th>
                                 </thead>
                                 <tbody></tbody>
@@ -228,13 +254,12 @@
         <i class="fas fa-angle-up"></i>
     </a>
 
-    <!-- Logout Modal-->
     <div class="modal fade" id="formulario" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
         aria-hidden="true">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="categoriaModalLabel"></h5>
+                    <h5 class="modal-title" id="colaboradorModalLabel"></h5>
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
@@ -242,14 +267,49 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-12">
-                            <label for="categoria">Categoría</label>
-                            <input type="text" class="form-control" id="categoria">
+                            <label for="nombres">Nombres</label>
+                            <input type="text" class="form-control" id="nombres">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="apellido_paterno">Apellido Paterno</label>
+                            <input type="text" class="form-control" id="apellido_paterno">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="apellido_materno">Apellido materno</label>
+                            <input type="text" class="form-control" id="apellido_materno">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="id_tipo_documento">Tipo de Documento</label>
+                            <select name="" id="id_tipo_documento" class="form-control">
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="n_documento">Número Documento</label>
+                            <input type="text" class="form-control" id="n_documento">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="celular">Celular</label>
+                            <input type="text" class="form-control" id="celular">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="email">Correo</label>
+                            <input type="text" class="form-control" id="email">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="fecha_nacimiento">Fecha Nacimiento</label>
+                            <input type="text" class="form-control" id="fecha_nacimiento">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="id_rol">Rol Usuario</label>
+                            <select name="" id="id_rol" class="form-control">
+                                <option value="0">--SELECCIONE--</option>
+                            </select>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
-                    <span class="btn btn-outline-success" id="btn-accion-categoria">Guardar</span>
+                    <span class="btn btn-outline-success" id="btn-accion-colaborador">Guardar</span>
                 </div>
             </div>
         </div>
@@ -272,9 +332,18 @@
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/alertify.min.css" />
     <!-- Default theme -->
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/themes/default.min.css" />
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/jquery.datetimepicker.full.min.js"></script>
+    <!-- DataTables 1.13.x -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
+    <!-- Extensión Buttons compatible con DataTables 1.x -->
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
     <script src="js/util.js"></script>
-    <script src="js/categorias.js"></script>
+    <script src="js/colaboradores.js"></script>
 </body>
 
 </html>

@@ -86,6 +86,7 @@
                         <a class="collapse-item" href="categorias.html">Categorias</a>
                         <a class="collapse-item" href="marcas.html">Marcas</a>
                         <a class="collapse-item" href="gastos.html">Gastos</a>
+                        <a class="collapse-item" href="almacenes.html">Almacenes</a>
                     </div>
                 </div>
             </li>
@@ -215,8 +216,9 @@
                             <table class="table table-bordered table-striped" id="tabla-proveedores">
                                 <thead>
                                     <th>Id</th>
-                                    <th>Nombres</th>
-                                    <th>Documento</th>
+                                    <th>Razón Social</th>
+                                    <th>Tipo Documento</th>
+                                    <th>N° Documento</th>
                                     <th>Correo</th>
                                     <th>Teléfono</th>
                                     <th width="5%"></th>
@@ -260,8 +262,13 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-12">
-                            <label for="nombres">Nombres</label>
-                            <input type="text" class="form-control" id="nombres">
+                            <label for="razon_social">Razón Social</label>
+                            <input type="text" class="form-control" id="razon_social">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="id_tipo_documento">Tipo de Documento</label>
+                            <select name="" id="id_tipo_documento" class="form-control">
+                            </select>
                         </div>
                         <div class="col-md-6">
                             <label for="n_documento">Número Documento</label>
@@ -271,7 +278,7 @@
                             <label for="telefono">Teléfono</label>
                             <input type="text" class="form-control" id="telefono">
                         </div>
-                        <div class="col-md-12">
+                        <div class="col-md-6">
                             <label for="email">Correo</label>
                             <input type="text" class="form-control" id="email">
                         </div>

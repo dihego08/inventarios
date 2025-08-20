@@ -1,23 +1,18 @@
 let current = null;
 let id_selected = null;
 let tipos_documentos = null;
-/*$(document).ready(function () {
-    lista_tipo_documentos();
-    
-});*/
 $(document).ready(function () {
-    lista_tipo_documentos().then(() => lista_proveedores());
+    lista_tipo_documentos().then(() => lista_colaboradores());
+    lista_roles();
 });
-/*function lista_tipo_documentos(){
-    $.post("ws/service.php?parAccion=lista_tipos_documentos_identificacion", function (response) {
+function lista_roles(){
+    $.post("ws/service.php?parAccion=lista_roles", function (response) {
         var obj = JSON.parse(response);
-        tipos_documentos = obj;
         $.each(obj, function (index, val) {
-            $("#id_tipo_documento").append(`<option value="${val.id}">${val.tipo_documento}</option>`);
+            $("#id_rol").append(`<option value="${val.id}">${val.rol}</option>`);
         });
-        lista_proveedores();
     });
-}*/
+}
 function lista_tipo_documentos() {
     return new Promise((resolve, reject) => {
         $.post("ws/service.php?parAccion=lista_tipos_documentos_identificacion", function (response) {
@@ -30,29 +25,33 @@ function lista_tipo_documentos() {
         }).fail(reject);
     });
 }
-function lista_proveedores() {
-    $('#tabla-proveedores').DataTable().clear().destroy();
-    $.post("ws/service.php?parAccion=lista_proveedores", function (response) {
+function lista_colaboradores() {
+    $('#tabla-colaboradores').DataTable().clear().destroy();
+    $.post("ws/service.php?parAccion=lista_colaboradores", function (response) {
         var obj = JSON.parse(response);
-        $("#tabla-proveedores").find("tbody").empty();
+        $("#tabla-colaboradores").find("tbody").empty();
         $.each(obj, function (index, val) {
             let tipo_documento = $.grep(tipos_documentos, function (value) {
                 return value.id == val.id_tipo_documento;
             });
-            $("#tabla-proveedores").find("tbody").append(`<tr>
+            $("#tabla-colaboradores").find("tbody").append(`<tr>
                 <td>${val.id}</td>
-                <td>${val.razon_social}</td>
+                <td>${val.nombres}</td>
+                <td>${val.apellido_paterno}</td>
+                <td>${val.apellido_materno}</td>
                 <td>${tipo_documento[0].tipo_documento}</td>
                 <td>${val.n_documento}</td>
                 <td>${val.email}</td>
-                <td>${val.telefono}</td>
+                <td>${val.celular}</td>
+                <td>${val.fecha_nacimiento}</td>
+                <td>${val.rol}</td>
                 <td>  
-                    <span class="btn btn-outline-warning btn-sm d-block mb-1" data-toggle="modal" data-target="#formulario" onclick="editar_proveedor(${val.id});"><i class="fa fa-edit"></i></span>
-                    <span  class="btn btn-outline-danger btn-sm d-block" onclick="eliminar_proveedor(${val.id});"><i class="fa fa-trash"></i></span>
+                    <span class="btn btn-outline-warning btn-sm d-block mb-1" data-toggle="modal" data-target="#formulario" onclick="editar_colaborador(${val.id});"><i class="fa fa-edit"></i></span>
+                    <span  class="btn btn-outline-danger btn-sm d-block" onclick="eliminar_colaborador(${val.id});"><i class="fa fa-trash"></i></span>
                 </td>
                 </tr>`);
         });
-        $("#tabla-proveedores").DataTable({
+        $("#tabla-colaboradores").DataTable({
             scrollX: true,       // Habilita el desplazamiento horizontal
             autoWidth: false,    // Evita que DataTables ajuste el ancho automáticamente
             responsive: true,    // Permite que la tabla se adapte
@@ -70,81 +69,90 @@ function lista_proveedores() {
         });
     });
 }
-function actualizar_proveedor(id) {
-    $.post("ws/service.php?parAccion=actualizar_proveedor", {
+function actualizar_colaborador(id) {
+    $.post("ws/service.php?parAccion=actualizar_colaborador", {
         id: id,
-        razon_social: $("#razon_social").val(),
-        n_documento: $("#n_documento").val(),
-        direccion: $("#direccion").val(),
-        telefono: $("#telefono").val(),
-        email: $("#email").val(),
+        nombres: $("#nombres").val(),
+        apellido_paterno: $("#apellido_paterno").val(),
+        apellido_materno: $("#apellido_materno").val(),
         id_tipo_documento: $("#id_tipo_documento").val(),
+        n_documento: $("#n_documento").val(),
+        celular: $("#celular").val(),
+        email: $("#email").val(),
+        fecha_nacimiento: $("#fecha_nacimiento").val(),
+        id_rol: $("#id_rol").val(),
     }, function (response) {
         var obj = JSON.parse(response);
         if (obj.Result == "OK") {
             alertify.success("Se modificó correctamente.");
-            lista_proveedores();
+            lista_colaboradores();
             limpiar_formulario();
         } else {
             alertify.error("Algo ha salido terriblemente mal.");
         }
     });
 }
-function insertar_proveedor() {
-    $.post("ws/service.php?parAccion=insertar_proveedor", {
-        razon_social: $("#razon_social").val(),
-        n_documento: $("#n_documento").val(),
-        direccion: $("#direccion").val(),
-        telefono: $("#telefono").val(),
-        email: $("#email").val(),
+function insertar_colaborador() {
+    $.post("ws/service.php?parAccion=insertar_colaborador", {
+        nombres: $("#nombres").val(),
+        apellido_paterno: $("#apellido_paterno").val(),
+        apellido_materno: $("#apellido_materno").val(),
         id_tipo_documento: $("#id_tipo_documento").val(),
+        n_documento: $("#n_documento").val(),
+        celular: $("#celular").val(),
+        email: $("#email").val(),
+        fecha_nacimiento: $("#fecha_nacimiento").val(),
+        id_rol: $("#id_rol").val(),
     }, function (response) {
         var obj = JSON.parse(response);
         if (obj.Result == "OK") {
             alertify.success("Se agregó correctamente.");
-            lista_proveedores();
+            lista_colaboradores();
             limpiar_formulario();
         } else {
             alertify.error("Algo ha salido terriblemente mal.");
         }
     });
 }
-function nuevo_proveedor() {
-    $("#proveedorModalLabel").text("Nuevo Proveedor");
-    $("#btn-accion-proveedor").text("Guardar");
-    $("#btn-accion-proveedor").attr("onclick", "insertar_proveedor();");
+function nuevo_colaborador() {
+    $("#colaboradorModalLabel").text("Nuevo Colaborador");
+    $("#btn-accion-colaborador").text("Guardar");
+    $("#btn-accion-colaborador").attr("onclick", "insertar_colaborador();");
 }
-function editar_proveedor(id) {
-    $("#proveedorModalLabel").text("Editar Proveedor");
-    $("#btn-accion-proveedor").text("Actualizar");
-    $("#btn-accion-proveedor").attr("onclick", "actualizar_proveedor(" + id + ");");
-    $.post("ws/service.php?parAccion=editar_proveedor", {
+function editar_colaborador(id) {
+    $("#colaboradorModalLabel").text("Editar Colaborador");
+    $("#btn-accion-colaborador").text("Actualizar");
+    $("#btn-accion-colaborador").attr("onclick", "actualizar_colaborador(" + id + ");");
+    $.post("ws/service.php?parAccion=editar_colaborador", {
         id: id
     }, function (response) {
         var obj = JSON.parse(response);
         current = obj;
 
-        $("#razon_social").val(obj.razon_social);
-        $("#n_documento").val(obj.n_documento);
-        $("#direccion").val(obj.direccion);
-        $("#telefono").val(obj.telefono);
-        $("#email").val(obj.email);
+        $("#nombres").val(obj.nombres);
+        $("#apellido_paterno").val(obj.apellido_paterno);
+        $("#apellido_materno").val(obj.apellido_materno);
         $("#id_tipo_documento").val(obj.id_tipo_documento);
+        $("#n_documento").val(obj.n_documento);
+        $("#celular").val(obj.celular);
+        $("#email").val(obj.email);
+        $("#fecha_nacimiento").val(obj.fecha_nacimiento);
+        $("#id_rol").val(obj.id_rol);
     });
 }
 function limpiar_formulario() {
     $(".form-control").val('');
     $("select").val(0);
 }
-function eliminar_proveedor(id) {
-    alertify.confirm('¿Eliminar este proveedor?', 'Esta acción no se puede deshacer', function () {
-        $.post("ws/service.php?parAccion=eliminar_proveedor", {
+function eliminar_colaborador(id) {
+    alertify.confirm('¿Eliminar este Colaborador?', 'Esta acción no se puede deshacer', function () {
+        $.post("ws/service.php?parAccion=eliminar_colaborador", {
             id: id
         }, function (response) {
             var obj = JSON.parse(response);
             if (obj.Result == "OK") {
                 alertify.success("Se agregó correctamente.");
-                lista_proveedores();
+                lista_colaboradores();
             } else {
                 alertify.error("Algo ha salido terriblemente mal.");
             }

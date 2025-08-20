@@ -2,9 +2,10 @@
 class Proveedor
 {
     public $id;
-    public $nombres;
+    public $razon_social;
     public $direccion;
     public $telefono;
     public $email;
     public $n_documento;
+    public $id_tipo_documento;
 }
