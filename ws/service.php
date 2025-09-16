@@ -17,6 +17,7 @@ include('models/Proveedor.php');
 include('models/Compra.php');
 include('models/Colaborador.php');
 include('models/Usuario.php');
+include('models/Asignaciones.php');
 require __DIR__ . '/simplexlsx/src/SimpleXLSX.php';
 require 'jwt.php';
 
@@ -264,43 +265,47 @@ switch ($accion) {
     case 'lista_formas_pagos':
         echo $mono->select_all("formas_pagos", true);
         break;
+    case 'lista_motivos':
+        echo $mono->select_all("motivos", true);
+        break;
     case 'lista_tipos_documentos':
         echo $mono->select_all("tipos_documentos", true);
         break;
     case 'lista_tipos_documentos_identificacion':
         echo $mono->select_all("tipos_documentos_identificacion", true);
         break;
-    case 'guardar_venta':
-        $venta = new Ventas();
-        $venta->id_cliente = $_POST['id_cliente'];
-        $venta->id_sucursal = $_SESSION['id_sucursal'];
-        $venta->monto = $_POST['monto'];
-        $venta->id_usuario_creacion = $_SESSION['id'];
-        $venta->id_forma_pago = $_POST['id_forma_pago'];
-        $venta->fecha_creacion = date("Y-m-d H:i:s");
-        $venta->estado = 0;
+    case 'guardar_asignacion':
+        $asignacion = new Asignaciones();
+        $asignacion->id_usuario = $_POST['id_usuario'];
+        $asignacion->fecha_asignacion = date("Y-m-d H:i:s");
+        //$asignacion->monto = $_POST['monto'];
+        $asignacion->id_usuario_creacion = $_SESSION['id'];
+        //$asignacion->id_forma_pago = $_POST['id_forma_pago'];
+        $asignacion->fecha_creacion = date("Y-m-d H:i:s");
+        //$asignacion->estado = 0;
 
-        $res = json_decode($mono->insert_data_v2("ventas", $venta));
+        $res = json_decode($mono->insert_data_v2("asignaciones", $asignacion));
 
         $LID = $res->LID;
-        $codigos_carro = $_POST['codigos_carro'];
+        /*$codigos_carro = $_POST['codigos_carro'];
         $cantidades = $_POST['cantidades'];
-        $precios = $_POST['precios'];
+        $precios = $_POST['precios'];*/
+        $detalle = $_POST['data'];
 
-        $venta_detalle = new Venta_detalle;
+        $asignacion_detalle = new Asignacion_Detalle;
         $movimientos = new Movimientos;
-        foreach ($codigos_carro as $i => $codigo) {
-            $venta_detalle->id_venta = $LID;
-            $venta_detalle->id_producto = $codigo;
-            $venta_detalle->precio_unitario = $precios[$i];
-            $venta_detalle->cantidad = $cantidades[$i];
-            $venta_detalle->total = $precios[$i] * $cantidades[$i];
-            $venta_detalle->id_usuario_creacion = $_SESSION['id'];
-            $venta_detalle->fecha_creacion = $venta->fecha_creacion;
+        foreach ($detalle as $i) {
+            $asignacion_detalle->id_asignacion = $LID;
+            $asignacion_detalle->id_producto = $i['id_producto'];
+            $asignacion_detalle->id_motivo = $i['id_motivo'];
+            $asignacion_detalle->cantidad = $i['cantidad'];
+            $asignacion_detalle->observaciones = $i['observaciones'];
+            $asignacion_detalle->id_usuario_creacion = $_SESSION['id'];
+            $asignacion_detalle->fecha_creacion = $asignacion->fecha_creacion;
 
-            $r1 = $mono->insert_data_v2("venta_detalle", $venta_detalle);
+            $r1 = $mono->insert_data_v2("detalle_asignaciones ", $asignacion_detalle);
 
-            $movimientos->tipo = 1;
+            /*$movimientos->tipo = 1;
             $movimientos->id_producto = $codigo;
             $movimientos->cantidad = $cantidades[$i];
             $movimientos->precio_unitario = $precios[$i];
@@ -312,7 +317,7 @@ switch ($accion) {
             $r2 = $mono->insert_data_v2("movimientos", $movimientos);
 
             $sql = "UPDATE producto_sucursal SET stock = stock - " . $cantidades[$i] . ", id_usuario_modificacion = " . $_POST['id_usuario_modificacion'] . ", fecha_modificacion = '" . date("Y-m-d H:i:s") . "' WHERE id_producto = " . $codigo . " AND id_sucursal = " . $_SESSION['id_sucursal'];
-            $mono->executor($sql, "update");
+            $mono->executor($sql, "update");*/
         }
 
         echo json_encode(array("Result" => "OK"));

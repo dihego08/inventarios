@@ -13,7 +13,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
 
-    <title>Inventarios DB - Productos</title>
+    <title>Inventarios DB - Nueva Asignación</title>
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -23,8 +23,19 @@
 
     <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
+    <style>
+        .pointer {
+            cursor: pointer;
+        }
+
+        td {
+            vertical-align: middle !important;
+        }
+    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.min.css"
+        rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css">
 </head>
 
 <body id="page-top">
@@ -58,21 +69,20 @@
             </div>
 
             <!-- Nav Item - Pages Collapse Menu -->
-            <li class="nav-item active">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages"
-                    aria-expanded="true" aria-controls="collapsePages">
+            <li class="nav-item ">
+                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapsePages" aria-expanded="true"
+                    aria-controls="collapsePages">
                     <i class="fas fa-fw fa-folder"></i>
                     <span>Control</span>
                 </a>
-                <div id="collapsePages" class="collapse show" aria-labelledby="headingPages"
-                    data-parent="#accordionSidebar">
+                <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                     <div class="bg-brown py-2 collapse-inner rounded">
                         <a class="collapse-item" href="colaboradores.html">Colaboradores</a>
                         <a class="collapse-item" href="usuarios.html">Usuarios</a>
                         <a class="collapse-item" href="proveedores.html">Proveedores</a>
                         <a class="collapse-item" href="almacenes.html">Almacenes</a>
                         <a class="collapse-item" href="sucursales.html">Sucursales</a>
-                        <a class="collapse-item active" href="productos.html">Productos</a>
+                        <a class="collapse-item" href="productos.html">Productos</a>
                         <a class="collapse-item" href="categorias.html">Categorias</a>
                         <a class="collapse-item" href="marcas.html">Marcas</a>
                         <a class="collapse-item" href="gastos.html">Gastos</a>
@@ -89,15 +99,16 @@
             </div>
 
             <!-- Nav Item - Pages Collapse Menu -->
-            <li class="nav-item">
-                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapsePOS" aria-expanded="true"
-                    aria-controls="collapsePOS">
+            <li class="nav-item active">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePOS"
+                    aria-expanded="true" aria-controls="collapsePOS">
                     <i class="fas fa-fw fa-folder"></i>
                     <span>Salidas</span>
                 </a>
-                <div id="collapsePOS" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+                <div id="collapsePOS" class="collapse show" aria-labelledby="headingPages"
+                    data-parent="#accordionSidebar">
                     <div class="bg-brown py-2 collapse-inner rounded">
-                        <a class="collapse-item" href="asignacion.html">Asignaciones</a>
+                        <a class="collapse-item active" href="asignacion.html">Asignaciones</a>
                         <!--<a class="collapse-item" href="ventas.html">Lista Ventas</a>-->
                     </div>
                 </div>
@@ -126,6 +137,7 @@
                     </div>
                 </div>
             </li>
+
             <hr class="sidebar-divider d-none d-md-block">
 
             <!-- Sidebar Toggler (Sidebar) -->
@@ -143,7 +155,8 @@
             <div id="content">
 
                 <!-- Topbar -->
-                <nav class="navbar navbar-expand navbar-light bg-brown-alt topbar mb-4 static-top shadow" style="box-shadow: 0px 2px 8px 2px #313131 !important;">
+                <nav class="navbar navbar-expand navbar-light bg-brown-alt topbar mb-4 static-top shadow"
+                    style="box-shadow: 0px 2px 8px 2px #313131 !important;">
 
                     <!-- Sidebar Toggle (Topbar) -->
                     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
@@ -190,29 +203,66 @@
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
-                    <h1 class="h3 mb-4 text-gray-800">Productos</h1>
-
+                    <h1 class="h3 mb-4 text-gray-800">Asignación de Activos</h1>
                     <div class="row">
-                        <div class="col-md-12 text-right mb-3">
-                            <span class="btn btn-outline-primary btn-rounded" data-toggle="modal"
-                                data-target="#formulario" onclick="nuevo_producto();"><i class="fa fa-plus"></i> Nuevo
-                                Producto</span>
-                        </div>
-                        <div class="table-response w-100">
-                            <table class="table table-bordered table-striped" id="tabla-productos">
-                                <thead>
-                                    <th>Id</th>
-                                    <th>Código</th>
-                                    <th>Producto</th>
-                                    <th>Categoría</th>
-                                    <th>Marca</th>
-                                    <th>Stock Actual</th>
-                                    <th>Precio Compra</th>
-                                    <th>Precio Venta</th>
-                                    <th width="5%"></th>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
+                        <div class="col-md-12 row">
+                            <div class="form-group col-md-3 my-2">
+                                <label>Colaborador</label>
+                            </div>
+                            <div class="form-group col-md-3 my-2">
+                                <label for="producto">Activo</label>
+                            </div>
+                            <div class="form-group col-md-2 my-2">
+                                <label for="cantidad">Cantidad</label>
+                            </div>
+                            <div class="form-group col-md-3 my-2">
+                                <label>Motivo Asignación</label>
+                            </div>
+                            <div class="form-group col-md-1 my-2"></div>
+                            <div class="form-group col-md-3 my-2">
+
+                                <div class="input-group mb-3" style="display: flex;">
+                                    <select name="" id="id_usuario" class="form-control">
+                                        <option value="0">--SELECCIONE--</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group col-md-3 my-2">
+                                <div class="input-group mb-3" style="display: flex;">
+                                    <input type="text" class="form-control" id="producto">
+                                </div>
+                            </div>
+                            <div class="form-group col-md-2 my-2">
+                                <div class="input-group mb-3" style="display: flex;">
+                                    <input type="text" class="form-control" id="cantidad">
+                                </div>
+                            </div>
+                            <div class="col-md-3 my-2">
+                                <select class="form-control" id="id_motivo" name="id_motivo">
+                                    <option value="0">--SELECCIONE--</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-1 my-2">
+                                <span class="btn btn-outline-success w-100" id="add-item">
+                                    <i class="fa fa-check"></i>
+                                </span>
+                            </div>
+                            <hr class="w-100">
+                            <div class="w-100 col-md-12" id="div_lista_ventas">
+                                <div class="order-empty" style="text-align: center; margin: 48px; color: #DDD;">
+                                    <i class="fa fa-shopping-cart" role="img" aria-label="Shopping cart"
+                                        title="Shopping cart" style="font-size: 64px;"></i>
+                                    <h1 style="font-size: 20px;">La lista esta vacia.</h1>
+                                </div>
+                            </div>
+                            <hr class="w-100">
+                            <div class="col-md-12">
+                                <div class="w-100 text-center">
+                                    <button class="btn btn-outline-success" id="guardar_asignacion">Guardar Asignación</button>
+                                    <button class="btn btn-outline-danger" onclick="limpiar_formulario();">Cancelar</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -237,53 +287,6 @@
         <i class="fas fa-angle-up"></i>
     </a>
 
-    <!-- Logout Modal-->
-    <div class="modal fade" id="formulario" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="productoModalLabel"></h5>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <label for="producto">Producto</label>
-                            <input type="text" class="form-control" id="producto">
-                        </div>
-                        <div class="col-md-12">
-                            <label for="codigo">Código Producto</label>
-                            <input type="text" class="form-control" id="codigo">
-                        </div>
-                        <div class="col-md-12">
-                            <label for="descripcion">Descripción</label>
-                            <textarea name="" id="descripcion" class="form-control"></textarea>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="id_marca">Marca</label>
-                            <select name="" id="id_marca" class="form-control">
-                                <option value="0">--SELECCIONE--</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="id_categoria">Categoría</label>
-                            <select name="" id="id_categoria" class="form-control">
-                                <option value="0">--SELECCIONE--</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
-                    <span class="btn btn-outline-success" id="btn-accion-producto">Guardar</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Bootstrap core JavaScript-->
     <script src="vendor/jquery/jquery.min.js"></script>
     <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -301,17 +304,15 @@
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/alertify.min.css" />
     <!-- Default theme -->
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/themes/default.min.css" />
-    <!-- DataTables 1.13.x -->
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/jquery.datetimepicker.full.min.js"></script>
 
-    <!-- Extensión Buttons compatible con DataTables 1.x -->
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/5.5.2/bootbox.min.js"></script>
     <script src="js/util.js"></script>
+    <script src="https://code.jquery.com/ui/1.14.1/jquery-ui.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="js/productos.js"></script>
+    <script src="js/asignacion.js"></script>
 </body>
 
 </html>
