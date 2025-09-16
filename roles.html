@@ -13,7 +13,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
 
-    <title>Inventarios DB - Productos</title>
+    <title>Inventarios DB - Roles</title>
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -23,8 +23,7 @@
 
     <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
+
 </head>
 
 <body id="page-top">
@@ -64,19 +63,18 @@
                     <i class="fas fa-fw fa-folder"></i>
                     <span>Control</span>
                 </a>
-                <div id="collapsePages" class="collapse show" aria-labelledby="headingPages"
-                    data-parent="#accordionSidebar">
+                <div id="collapsePages" class="collapse show" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                     <div class="bg-brown py-2 collapse-inner rounded">
                         <a class="collapse-item" href="colaboradores.html">Colaboradores</a>
                         <a class="collapse-item" href="usuarios.html">Usuarios</a>
                         <a class="collapse-item" href="proveedores.html">Proveedores</a>
                         <a class="collapse-item" href="almacenes.html">Almacenes</a>
                         <a class="collapse-item" href="sucursales.html">Sucursales</a>
-                        <a class="collapse-item active" href="productos.html">Productos</a>
+                        <a class="collapse-item" href="productos.html">Productos</a>
                         <a class="collapse-item" href="categorias.html">Categorias</a>
                         <a class="collapse-item" href="marcas.html">Marcas</a>
                         <a class="collapse-item" href="gastos.html">Gastos</a>
-                        <a class="collapse-item" href="roles.html">Roles</a>
+                        <a class="collapse-item active" href="roles.html">Roles</a>
                     </div>
                 </div>
             </li>
@@ -113,8 +111,8 @@
 
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
-                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseStock" aria-expanded="true"
-                    aria-controls="collapseStock">
+                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseStock"
+                    aria-expanded="true" aria-controls="collapseStock">
                     <i class="fas fa-fw fa-folder"></i>
                     <span>Stocks</span>
                 </a>
@@ -127,6 +125,7 @@
                     </div>
                 </div>
             </li>
+
             <hr class="sidebar-divider d-none d-md-block">
 
             <!-- Sidebar Toggler (Sidebar) -->
@@ -191,25 +190,18 @@
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
-                    <h1 class="h3 mb-4 text-gray-800">Productos</h1>
+                    <h1 class="h3 mb-4 text-gray-800">Roles</h1>
 
                     <div class="row">
                         <div class="col-md-12 text-right mb-3">
                             <span class="btn btn-outline-primary btn-rounded" data-toggle="modal"
-                                data-target="#formulario" onclick="nuevo_producto();"><i class="fa fa-plus"></i> Nuevo
-                                Producto</span>
+                                data-target="#formulario" onclick="nuevo_rol();"><i class="fa fa-plus"></i> Nuevo Rol</span>
                         </div>
                         <div class="table-response w-100">
-                            <table class="table table-bordered table-striped" id="tabla-productos">
+                            <table class="table table-bordered table-striped" id="tabla-roles">
                                 <thead>
                                     <th>Id</th>
-                                    <th>Código</th>
-                                    <th>Producto</th>
-                                    <th>Categoría</th>
-                                    <th>Marca</th>
-                                    <th>Stock Actual</th>
-                                    <th>Precio Compra</th>
-                                    <th>Precio Venta</th>
+                                    <th>Rol</th>
                                     <th width="5%"></th>
                                 </thead>
                                 <tbody></tbody>
@@ -244,7 +236,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="productoModalLabel"></h5>
+                    <h5 class="modal-title" id="rolModalLabel"></h5>
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
@@ -252,34 +244,14 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-12">
-                            <label for="producto">Producto</label>
-                            <input type="text" class="form-control" id="producto">
-                        </div>
-                        <div class="col-md-12">
-                            <label for="codigo">Código Producto</label>
-                            <input type="text" class="form-control" id="codigo">
-                        </div>
-                        <div class="col-md-12">
-                            <label for="descripcion">Descripción</label>
-                            <textarea name="" id="descripcion" class="form-control"></textarea>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="id_marca">Marca</label>
-                            <select name="" id="id_marca" class="form-control">
-                                <option value="0">--SELECCIONE--</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="id_categoria">Categoría</label>
-                            <select name="" id="id_categoria" class="form-control">
-                                <option value="0">--SELECCIONE--</option>
-                            </select>
+                            <label for="rol">Rol</label>
+                            <input type="text" class="form-control" id="rol">
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
-                    <span class="btn btn-outline-success" id="btn-accion-producto">Guardar</span>
+                    <span class="btn btn-outline-success" id="btn-accion-rol">Guardar</span>
                 </div>
             </div>
         </div>
@@ -302,17 +274,9 @@
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/alertify.min.css" />
     <!-- Default theme -->
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/themes/default.min.css" />
-    <!-- DataTables 1.13.x -->
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
-    <!-- Extensión Buttons compatible con DataTables 1.x -->
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
     <script src="js/util.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="js/productos.js"></script>
+    <script src="js/roles.js"></script>
 </body>
 
 </html>

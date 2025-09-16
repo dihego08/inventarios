@@ -64,8 +64,20 @@ switch ($accion) {
         $_POST['fecha_creacion'] = date("Y-m-d H:i:s");
         echo $mono->insert_data("marcas", $_POST, false);
         break;
+    case 'insertar_rol':
+        echo $mono->insert_data("roles", $_POST, false);
+        break;
     case 'editar_marca':
         echo $mono->select_one("marcas", array("id" => $_POST['id']));
+        break;
+    case 'editar_rol':
+        echo $mono->select_one("roles", array("id" => $_POST['id']));
+        break;
+    case 'actualizar_rol':
+        echo $mono->update_data("roles", $_POST);
+        break;
+    case 'eliminar_rol':
+        echo $mono->delete_data("roles", array("id" => $_POST['id']));
         break;
     case 'actualizar_marca':
         $_POST['imagen'] = null;
