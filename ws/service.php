@@ -557,7 +557,7 @@ switch ($accion) {
         echo $mono->run_query($sql);
         break;
     case 'autocomplete':
-        $sql = 'SELECT p.* FROM productos p WHERE p.producto LIKE "%' . $_GET['search'] . '%" AND (p.estado is null or estado = 0)';
+        $sql = 'SELECT p.*, m.marca FROM productos p LEFT JOIN marcas m on p.id_marca = m.id WHERE p.producto LIKE "%' . $_GET['search'] . '%" AND (p.estado is null or estado = 0)';
         echo $mono->run_query($sql);
         break;
     case 'reporte_fecha':
@@ -626,6 +626,7 @@ switch ($accion) {
         $codigos_carro = $_POST['codigos_carro'];
         $cantidades = $_POST['cantidades'];
         $precios = $_POST['precios'];
+        $almacenes = $_POST['almacenes'];
 
         $compraDetalle = new DetalleCompra;
         $movimientos = new Movimientos;
@@ -634,6 +635,7 @@ switch ($accion) {
             $compraDetalle->id_producto = $codigo;
             $compraDetalle->precio_unitario = $precios[$i];
             $compraDetalle->cantidad = $cantidades[$i];
+            $compraDetalle->id_almacen = $almacenes[$i];
 
             $r1 = $mono->insert_data_v2("detalle_compras", $compraDetalle);
         }

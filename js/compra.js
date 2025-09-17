@@ -1,6 +1,7 @@
 var codigos_carro = [];
 var cantidades = [];
 var precios = [];
+var almacenes = [];
 let id_cliente_general = 0;
 $(document).ready(function () {
     $(".fecha").datetimepicker({
@@ -8,8 +9,9 @@ $(document).ready(function () {
         timepicker: false
     });
     $.datetimepicker.setLocale('es');
-
+getTodayDate();
     lista_proveedores();
+    lista_almacenes();
     lista_tipos_documentos();
     lista_formas_pagos();
 
@@ -37,6 +39,7 @@ $(document).ready(function () {
                 codigos_carro: codigos_carro,
                 cantidades: cantidades,
                 precios: precios,
+                almacenes:almacenes,
                 id_proveedor: $("#id_proveedor").val(),
                 id_forma_pago: $("#id_forma_pago").val(),
                 id_tipo_documento: $("#id_tipo_documento").val(),
@@ -76,10 +79,10 @@ $(document).ready(function () {
                 success: function (data) {
                     response($.map(data, function (item) {
                         return {
-                            label: item.producto,
-                            value: item.producto,
+                            label: item.producto + " "+item.marca+" "+item.modelo,
+                            value: item.producto + " "+item.marca+" "+item.modelo,
                             id: item.id,
-                            producto: item.producto,
+                            producto: item.producto + " "+item.marca+" "+item.modelo,
                             precio_unitario: parseFloat(item.precio_unitario).toFixed(2)
                         }
                     }))
@@ -103,13 +106,14 @@ function limpiar_campos() {
     $("#cantidad").val("");
 }
 function limpiar_formulario() {
-    $(".form-control").val('');
-    $("select").val(0);
+    $(".form-control:not(#fecha)").val('');
+    $("select:not(#id_almacen)").val(0);
     $('.item-carrito').remove();
     $(".order-empty").show();
     codigos_carro = [];
     cantidades = [];
     precios = [];
+    almacenes=[];
     calcularTodo();
     $("#producto").trigger("focus");
 }
@@ -135,13 +139,29 @@ function lista_proveedores() {
         $("#id_proveedor").empty();
         $("#id_proveedor").append(`<option value="0">--SELECCIONE--</option>`);
         $.each(obj, function (index, val) {
-            $("#id_proveedor").append(`<option value="${val.id}">${val.n_documento} - ${val.nombres}</option>`);
+            $("#id_proveedor").append(`<option value="${val.id}">${val.n_documento} - ${val.razon_social}</option>`);
         });
 
         $("#id_proveedor").select2();
     });
 }
-
+function lista_almacenes(){
+    $.post("ws/service.php?parAccion=lista_almacenes", function (response) {
+        var obj = JSON.parse(response);
+        $("#id_almacen").empty();
+        $.each(obj, function (index, val) {
+            $("#id_almacen").append(`<option value="${val.id}">${val.almacen}</option>`);
+        });
+    });
+}
+function getTodayDate() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0'); // meses van de 0 a 11
+    const day = String(today.getDate()).padStart(2, '0');
+    //return `${year}-${month}-${day}`;
+    $("#fecha").val(`${year}-${month}-${day}`);
+}
 function anadirItem(id, nombre, precio) {
     precio = parseFloat($("#precio").val()).toFixed(2);
     var flag = 0;
@@ -159,6 +179,7 @@ function anadirItem(id, nombre, precio) {
         codigos_carro.push(id);
         cantidades.push($("#cantidad").val());
         precios.push(precio);
+        almacenes.push($("#id_almacen").val());
 
         $(".order-empty").hide();
         $("#div_lista_ventas").append(`
@@ -171,6 +192,7 @@ function anadirItem(id, nombre, precio) {
                         <td width="50%">
                             <p style="font-weight: bold; display: block; font-size: 13px; text-align: left;" class="w-100 mb-0">${nombre}</p>
                             <p class="w-100 my-0" style="font-size: 16px; text-align: left;"> <span class="badge badge-primary">S/ ${precio}</span></p>
+                            <p class="w-100 my-0" style="font-size: 16px; text-align: left;"> <span class="badge badge-dark">${$("#id_almacen option:selected").text()}</span></p>
                         </td>
                         <td width="30%">
                             <strong>S/ </strong><strong id="precio${id}">${total_item}</strong>
@@ -202,6 +224,7 @@ function anadirItem(id, nombre, precio) {
 
         cantidades[item_encontrado] = cant_actual;
         precios[item_encontrado] = precio;
+        //almacenes[]
     }
     calcularTodo();
 

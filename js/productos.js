@@ -32,6 +32,8 @@ function lista_productos() {
                 <td><span title="${val.descripcion}">${val.producto}</span></td>
                 <td>${val.categoria}</td>
                 <td>${val.marca}</td>
+                <td>${val.modelo}</td>
+                <td>${val.serie}</td>
                 <td>${$.trim(val.stock_actual)}</td>
                 <td>${$.trim(val.precio_compra)}</td>
                 <td>${$.trim(val.precio_venta)}</td>
@@ -66,7 +68,9 @@ function actualizar_producto(id) {
         id_marca: $("#id_marca").val(),
         descripcion: $("#descripcion").val(),
         codigo: $("#codigo").val(),
-        id: id
+        id: id,
+            modelo: $("#modelo").val(),
+            serie: $("#serie").val(),
     }, function (response) {
         var obj = JSON.parse(response);
         if (obj.Result == "OK") {
@@ -91,7 +95,9 @@ function insertar_producto() {
             id_categoria: $("#id_categoria").val(),
             id_marca: $("#id_marca").val(),
             descripcion: $("#descripcion").val(),
-            codigo: $("#codigo").val()
+            codigo: $("#codigo").val(),
+            modelo: $("#modelo").val(),
+            serie: $("#serie").val(),
         }, function (response) {
             var obj = JSON.parse(response);
             if (obj.Result == "OK") {
@@ -128,6 +134,8 @@ function editar_producto(id) {
         $("#id_marca").val(obj.id_marca);
         $("#codigo").val(obj.codigo);
         $("#descripcion").val(obj.descripcion);
+        $("#modelo").val(obj.modelo);
+        $("#serie").val(obj.serie);
     });
 }
 function eliminar_producto(id) {
