@@ -1,18 +1,18 @@
 $(document).ready(function () {
-    lista_sucursales();
+    lista_almacenes();
 });
-function lista_sucursales() {
-    $.post("ws/service.php?parAccion=lista_sucursales", function (response) {
+function lista_almacenes() {
+    $.post("ws/service.php?parAccion=lista_almacenes", function (response) {
         var obj = JSON.parse(response);
         $.each(obj, function (index, val) {
-            $("#id_sucursal").append(`<option value="${val.id}">${val.sucursal}</option>`);
+            $("#id_almacen").append(`<option value="${val.id}">${val.almacen}</option>`);
         });
     });
 }
 function ver_stock() {
     $('#tabla-stock').DataTable().clear().destroy();
     $.post("ws/service.php?parAccion=ver_stock", {
-        id_sucursal: $("#id_sucursal").val()
+        id_almacen: $("#id_almacen").val()
     }, function (response) {
         var obj = JSON.parse(response);
         $("#tabla-stock").find("tbody").empty();
@@ -20,7 +20,8 @@ function ver_stock() {
             $("#tabla-stock").find("tbody").append(`<tr>
                 <td>${val.id}</td>
                 <td>${val.producto}</td>
-                <td>${val.stock||0}</td>
+                <td>${val.cantidad||0}</td>
+                <td>${val.estado}</td>
             </tr>`);
         });
         $("#tabla-stock").DataTable({

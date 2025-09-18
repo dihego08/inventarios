@@ -4,9 +4,9 @@ use Shuchkin\SimpleXLSX;
 
 session_start();
 
-ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+ini_set('display_errors', 1);
+error_reporting(-1);
 date_default_timezone_set('America/Lima');
 include('../env/Monodon.php');
 include('models/Sucursal.php');
@@ -309,6 +309,7 @@ switch ($accion) {
         foreach ($detalle as $i) {
             $asignacion_detalle->id_asignacion = $LID;
             $asignacion_detalle->id_producto = $i['id_producto'];
+            $asignacion_detalle->id_producto_serie = $i['id_producto_serie'];
             $asignacion_detalle->id_motivo = $i['id_motivo'];
             $asignacion_detalle->cantidad = $i['cantidad'];
             $asignacion_detalle->observaciones = $i['observaciones'];
@@ -342,6 +343,10 @@ switch ($accion) {
         $sql = "UPDATE ventas SET estado = 1 WHERE id = " . $_POST['id'];
         echo $mono->executor($sql, "update");
         break;
+        case 'detalle_compra':
+            $sql = "SELECT p.producto, v.* FROM detalle_compras AS v JOIN productos AS p ON p.id = v.id_producto AND v.id_compra = " . $_POST['id'];
+            echo $mono->run_query($sql);
+            break;    
     case 'detalle_venta':
         $sql = "SELECT p.producto, v.* FROM venta_detalle AS v JOIN productos AS p ON p.id = v.id_producto AND v.id_venta = " . $_POST['id'];
         echo $mono->run_query($sql);
@@ -522,10 +527,6 @@ switch ($accion) {
         unset($_SESSION);
         break;
 
-    case 'ver_stock':
-        $sql = "SELECT p.producto, p.id, ps.id_producto, ps.stock, ps.precio_unitario FROM producto_sucursal AS ps RIGHT JOIN productos AS p on p.id = ps.id_producto AND ps.id_sucursal = " . $_POST['id_sucursal'];
-        echo $mono->run_query($sql);
-        break;
 
 
     case 'lista_gastos':
@@ -552,12 +553,33 @@ switch ($accion) {
         echo $mono->select_all("roles", true);
         break;
 
+        case 'ver_stock':
+            $almacen = json_decode($mono->select_one("almacenes", array("id" => $_POST['id_almacen'])));
+            if($almacen->tipo == 1){
+                $sql = "SELECT CONCAT(p.producto, ' ', ma.marca, ' ', p.modelo, ' ', ps.codigo, ' ', ps.serie) producto, 1 cantidad, ps.id, UPPER(e.estado) estado FROM productos AS p LEFT JOIN marcas ma ON ma.id = p.id_marca JOIN producto_series ps ON p.id = ps.id_producto left join estados_asignacion e on e.id = ps.id_estado where AND ps.id_almacen = " . $_POST['id_almacen'];
+            }else{
+$sql = "SELECT 
+    p.producto,
+    SUM(
+        CASE 
+            WHEN m.id_tipo_movimiento = 1 THEN m.cantidad   -- ingreso
+            WHEN m.id_tipo_movimiento = 2 THEN -m.cantidad  -- salida
+            ELSE 0
+        END
+    ) AS stock_actual
+FROM movimientos m
+JOIN productos p ON p.id = m.id_producto
+WHERE m.id_almacen = ".$_POST['id_almacen']."
+GROUP BY p.producto;";
+            }
+            echo $mono->run_query($sql);
+            break;
     case 'ver_movimientos':
-        $sql = "SELECT p.producto, m.id, m.tipo, m.id_producto, m.cantidad, p.precio_unitario, c.nombres, m.fecha_creacion as fecha FROM movimientos AS m left join productos AS p on p.id = m.id_producto left join clientes as c on c.id = m.id_cliente WHERE m.id_sucursal = " . $_POST['id_sucursal'] . " AND date(m.fecha_creacion) BETWEEN '" . $_POST['fecha_desde'] . "' AND '" . $_POST['fecha_hasta'] . "'";
+        $sql = "SELECT CONCAT(p.producto, ' ', ma.marca, ' ', p.modelo, ' ', ps.codigo, ' ', ps.serie) producto, m.id, t.tipo_movimiento, m.id_tipo_movimiento, m.id_producto, m.cantidad, m.precio_unitario, pr.razon_social, c.nombres, c.apellido_paterno, c.apellido_materno, m.fecha_creacion as fecha FROM movimientos AS m join tipos_movimientos t on t.id = m.id_tipo_movimiento left join productos AS p on p.id = m.id_producto left join proveedores as pr on pr.id = m.id_proveedor left join colaboradores c on c.id = m.id_colaborador LEFT JOIN marcas ma ON ma.id = p.id_marca LEFT JOIN producto_series ps ON ps.id = m.id_producto_serie WHERE date(m.fecha_creacion) BETWEEN '" . $_POST['fecha_desde'] . "' AND '" . $_POST['fecha_hasta'] . "'";
         echo $mono->run_query($sql);
         break;
     case 'autocomplete':
-        $sql = 'SELECT p.*, m.marca FROM productos p LEFT JOIN marcas m on p.id_marca = m.id WHERE p.producto LIKE "%' . $_GET['search'] . '%" AND (p.estado is null or estado = 0)';
+        $sql = 'SELECT p.*, m.marca, ps.serie, ps.id id_producto_serie, ps.id_almacen FROM productos p LEFT JOIN marcas m on p.id_marca = m.id left join producto_series ps on p.id = ps.id_producto WHERE (p.producto LIKE "%' . $_GET['search'] . '%" OR ps.serie LIKE "%' . $_GET['search'] . '%") AND (p.estado is null or estado = 0)';
         echo $mono->run_query($sql);
         break;
     case 'reporte_fecha':
@@ -621,29 +643,43 @@ switch ($accion) {
         $compra->id_tipo_documento = $_POST['id_tipo_documento'];
 
         $res = json_decode($mono->insert_data_v2("compras", $compra));
-
         $LID = $res->LID;
-        $codigos_carro = $_POST['codigos_carro'];
-        $cantidades = $_POST['cantidades'];
-        $precios = $_POST['precios'];
-        $almacenes = $_POST['almacenes'];
 
-        $compraDetalle = new DetalleCompra;
-        $movimientos = new Movimientos;
-        foreach ($codigos_carro as $i => $codigo) {
+        // Decode carrito
+        $carrito = $_POST['carrito'];
+
+        foreach ($carrito as $item) {
+            $compraDetalle = new DetalleCompra;
             $compraDetalle->id_compra = $LID;
-            $compraDetalle->id_producto = $codigo;
-            $compraDetalle->precio_unitario = $precios[$i];
-            $compraDetalle->cantidad = $cantidades[$i];
-            $compraDetalle->id_almacen = $almacenes[$i];
+            $compraDetalle->id_producto = $item['id_producto'];
+            $compraDetalle->precio_unitario = $item['precio_unitario'];
+            $compraDetalle->cantidad = $item['cantidad'];
+            $compraDetalle->id_almacen = $item['almacen'];
 
-            $r1 = $mono->insert_data_v2("detalle_compras", $compraDetalle);
+            $mono->insert_data_v2("detalle_compras", $compraDetalle);
+
+            if (!empty($item['series'])) {
+                foreach ($item['series'] as $serie) {
+                    //echo $serie."\n";
+                    $producto_series = [
+                        //'id_compra'   => $LID,
+                        'id_producto' => $item['id_producto'],
+                        'id_almacen'  => $item['almacen'],
+                        'serie'       => $serie,
+                        'id_estado'       => '',
+                        'codigo'       => '',
+                    ];
+                    //print_r($producto_series);
+                    //$mono->insert_data_v2("producto_series", $producto_series);
+                    $mono->insert_data("producto_series", $producto_series, false);
+                }
+            }
         }
 
         echo json_encode(array("Result" => "OK"));
         break;
     case 'lista_compras':
-        $sql = "SELECT v.*, c.nombres, s.sucursal, v.fecha as fecha, f.forma_pago, td.tipo_documento FROM compras AS v LEFT JOIN proveedores AS c ON c.id = v.id_proveedor LEFT JOIN sucursales AS s ON s.id = v.id_sucursal LEFT JOIN formas_pagos AS f ON f.id = v.id_forma_pago JOIN tipos_documentos AS td ON td.id = v.id_tipo_documento WHERE date(v.fecha) BETWEEN '" . $_POST['fecha_desde'] . "' AND '" . $_POST['fecha_hasta'] . "'";
+        $sql = "SELECT v.*, c.razon_social, v.fecha as fecha, f.forma_pago, td.tipo_documento FROM compras AS v LEFT JOIN proveedores AS c ON c.id = v.id_proveedor LEFT JOIN formas_pagos AS f ON f.id = v.id_forma_pago JOIN tipos_documentos AS td ON td.id = v.id_tipo_documento WHERE date(v.fecha) BETWEEN '" . $_POST['fecha_desde'] . "' AND '" . $_POST['fecha_hasta'] . "'";
         echo $mono->run_query($sql);
         break;
 

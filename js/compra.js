@@ -2,6 +2,7 @@ var codigos_carro = [];
 var cantidades = [];
 var precios = [];
 var almacenes = [];
+var series_carro = [];
 let id_cliente_general = 0;
 $(document).ready(function () {
     $(".fecha").datetimepicker({
@@ -9,7 +10,7 @@ $(document).ready(function () {
         timepicker: false
     });
     $.datetimepicker.setLocale('es');
-getTodayDate();
+    getTodayDate();
     lista_proveedores();
     lista_almacenes();
     lista_tipos_documentos();
@@ -35,11 +36,14 @@ getTodayDate();
                 text: "Se debe de añadir al menos un producto!",
             });
         } else {
+            let carrito = generarCarritoJSON();
             $.post("ws/service.php?parAccion=guardar_compra", {
-                codigos_carro: codigos_carro,
+                /*codigos_carro: codigos_carro,
                 cantidades: cantidades,
                 precios: precios,
-                almacenes:almacenes,
+                almacenes: almacenes,
+                series_carro: series_carro,*/
+                carrito: carrito,
                 id_proveedor: $("#id_proveedor").val(),
                 id_forma_pago: $("#id_forma_pago").val(),
                 id_tipo_documento: $("#id_tipo_documento").val(),
@@ -79,10 +83,10 @@ getTodayDate();
                 success: function (data) {
                     response($.map(data, function (item) {
                         return {
-                            label: item.producto + " "+item.marca+" "+item.modelo,
-                            value: item.producto + " "+item.marca+" "+item.modelo,
+                            label: item.producto + " " + item.marca + " " + item.modelo,
+                            value: item.producto + " " + item.marca + " " + item.modelo,
                             id: item.id,
-                            producto: item.producto + " "+item.marca+" "+item.modelo,
+                            producto: item.producto + " " + item.marca + " " + item.modelo,
                             precio_unitario: parseFloat(item.precio_unitario).toFixed(2)
                         }
                     }))
@@ -99,11 +103,25 @@ getTodayDate();
             $("#add-item").click();
         }
     });
+    $("#id_almacen").on("change", function () {
+        let tipo = $("#id_almacen option:selected").data("id");
+        if (tipo == 1) {
+            $("#div-compras").empty();
+            for (let index = 0; index < $("#cantidad").val(); index++) {
+                $("#div-compras").append(`<input type="text" class="form-control mb-1" placeholder="Serie..." />`);
+            }
+        } else {
+            $("#div-compras").empty();
+        }
+    });
 });
 function limpiar_campos() {
     $("#producto").trigger("focus");
     $("#producto").val("");
     $("#cantidad").val("");
+    $("#precio").val("");
+    $("#id_almacen").val(0);
+    $("#id_almacen").change();
 }
 function limpiar_formulario() {
     $(".form-control:not(#fecha)").val('');
@@ -113,7 +131,8 @@ function limpiar_formulario() {
     codigos_carro = [];
     cantidades = [];
     precios = [];
-    almacenes=[];
+    almacenes = [];
+    series_carro = [];
     calcularTodo();
     $("#producto").trigger("focus");
 }
@@ -145,12 +164,13 @@ function lista_proveedores() {
         $("#id_proveedor").select2();
     });
 }
-function lista_almacenes(){
+function lista_almacenes() {
     $.post("ws/service.php?parAccion=lista_almacenes", function (response) {
         var obj = JSON.parse(response);
         $("#id_almacen").empty();
+        $("#id_almacen").append(`<option value="0">--SELECCIONE--</option>`);
         $.each(obj, function (index, val) {
-            $("#id_almacen").append(`<option value="${val.id}">${val.almacen}</option>`);
+            $("#id_almacen").append(`<option value="${val.id}" data-id="${val.tipo}">${val.almacen}</option>`);
         });
     });
 }
@@ -161,6 +181,26 @@ function getTodayDate() {
     const day = String(today.getDate()).padStart(2, '0');
     //return `${year}-${month}-${day}`;
     $("#fecha").val(`${year}-${month}-${day}`);
+}
+function generarCarritoJSON() {
+    let carrito = [];
+
+    $("#div_lista_ventas .item-carrito").each(function () {
+        let item = {};
+        item.id_producto = $(this).attr("id").replace("item", "");
+        item.cantidad = $(this).find("strong[id^=cant]").text();
+        item.precio_unitario = $(this).find("span.badge-primary").text().replace("S/ ", "");
+        item.almacen = $(this).find("input.id_almacen_oculto").val();
+
+        // 👇 aquí capturas las series si existen
+        let seriesText = $(this).find("p.series").last().text();
+        let series = seriesText ? seriesText.split(",").map(s => s.trim()) : [];
+        item.series = series;
+
+        carrito.push(item);
+    });
+
+    return carrito;
 }
 function anadirItem(id, nombre, precio) {
     precio = parseFloat($("#precio").val()).toFixed(2);
@@ -180,8 +220,19 @@ function anadirItem(id, nombre, precio) {
         cantidades.push($("#cantidad").val());
         precios.push(precio);
         almacenes.push($("#id_almacen").val());
-
+        let series = [];
+        $("#div-compras input").each(function () {
+            let serie = $(this).val().trim();
+            if (serie) {
+                series.push(serie);
+            }
+        });
+        series_carro.push(series); // guardamos las series (array paralelo)
         $(".order-empty").hide();
+        let series_html = "";
+        if (series.length > 0) {
+            series_html = `<p class="my-0 series" style="font-size: font-size: 13px;">${series.join(", ")}</p>`;
+        }
         $("#div_lista_ventas").append(`
             <div id="item${id}" class="row item-carrito" style="color: #555555; background: rgba(140,143,183,0.2); border-bottom: solid 1px #313131;">
                 <table class="table mb-0">
@@ -189,12 +240,13 @@ function anadirItem(id, nombre, precio) {
                         <td width="10%" class="text-center">
                             <strong id="cant${id}">${$("#cantidad").val()}</strong>
                         </td>
-                        <td width="50%">
+                        <td width="60%">
                             <p style="font-weight: bold; display: block; font-size: 13px; text-align: left;" class="w-100 mb-0">${nombre}</p>
-                            <p class="w-100 my-0" style="font-size: 16px; text-align: left;"> <span class="badge badge-primary">S/ ${precio}</span></p>
-                            <p class="w-100 my-0" style="font-size: 16px; text-align: left;"> <span class="badge badge-dark">${$("#id_almacen option:selected").text()}</span></p>
+                            <p class="w-100 my-0" style="font-size: 16px; text-align: left;"> <span class="badge badge-primary">S/ ${precio}</span> - <span class="badge badge-dark">${$("#id_almacen option:selected").text()}</span></p>
+                            <input type="hidden" class="id_almacen_oculto" value="${$("#id_almacen").val()}">
+                            ${series_html}
                         </td>
-                        <td width="30%">
+                        <td width="20%">
                             <strong>S/ </strong><strong id="precio${id}">${total_item}</strong>
                         </td>
                         <td width="10%">

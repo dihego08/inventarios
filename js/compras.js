@@ -37,16 +37,15 @@ function lista_compras() {
             $("#tabla-compras").find("tbody").append(`<tr>
                 <td>${val.id}</td>
                 <td>${val.fecha}</td>
-                <td>${$.trim(val.nombres)}</td>
-                <td>${$.trim(val.sucursal)}</td>
+                <td>${$.trim(val.razon_social)}</td>
+                <td>S/ ${$.trim(val.subtotal)}</td>
+                <td>S/ ${$.trim(val.igv)}</td>
+                <td>S/ ${$.trim(val.total)}</td>
                 <td>${$.trim(val.tipo_documento)}</td>
-                <td>${$.trim(val.total)}</td>
-                <td>${$.trim(val.subtotal)}</td>
-                <td>${$.trim(val.igv)}</td>
                 <td>${$.trim(val.forma_pago)}</td>
                 <td>
-                    <span class="btn btn-outline-info btn-sm d-block mb-1" data-toggle="modal" data-target="#formulario" onclick="detalle_venta(${val.id});"><i class="fa fa-eye"></i></span>
-                    <span  class="btn btn-outline-danger btn-sm d-block" onclick="eliminar_venta(${val.id});"><i class="fa fa-trash"></i></span>
+                    <span class="btn btn-outline-info btn-sm d-block mb-1" data-toggle="modal" data-target="#formulario" onclick="detalle_compra(${val.id});"><i class="fa fa-eye"></i></span>
+                    <span  class="btn btn-outline-danger btn-sm d-block" onclick="eliminar_compra(${val.id});"><i class="fa fa-trash"></i></span>
                 </td>
             </tr>`);
         });
@@ -68,8 +67,8 @@ function lista_compras() {
         });
     });
 }
-function detalle_venta(id) {
-    $.post("ws/service.php?parAccion=detalle_venta", {
+function detalle_compra(id) {
+    $.post("ws/service.php?parAccion=detalle_compra", {
         id: id
     }, function (response) {
         var obj = JSON.parse(response);
@@ -78,15 +77,15 @@ function detalle_venta(id) {
             $("#tabla-detalle-venta").find("tbody").append(`<tr>
                 <td>${val.producto}</td>
                 <td>${val.cantidad}</td>
-                <td>${val.precio_unitario}</td>
-                <td>${val.total}</td>
+                <td>S/ ${val.precio_unitario}</td>
+                <td>S/ ${val.precio_unitario * val.cantidad}</td>
             </tr>`);
         });
     });
 }
-function eliminar_venta(id) {
+function eliminar_compra(id) {
     alertify.confirm('¿Eliminar Producto?', 'Esta acción no se puede deshacer', function () {
-        $.post("ws/service.php?parAccion=eliminar_venta", {
+        $.post("ws/service.php?parAccion=eliminar_compra", {
             id: id
         }, function (response) {
             var obj = JSON.parse(response);

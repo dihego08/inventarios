@@ -27,26 +27,30 @@ $(document).ready(function () {
         text: "Se debe de añadir al menos un producto!",
       });
     } else {
-        let data = [];
-        const items = document.querySelectorAll("#div_lista_ventas .item-carrito");
-    
-        items.forEach(item => {
-            let cantidad    = item.querySelector("strong").innerText.trim();
-            let producto    = item.querySelector("p").innerText.trim();
-            let id_producto    = item.querySelector(".id_oculto").value;
-            let id_motivo        = item.querySelector(".id_motivo_oculto").value; // ej: Cambio / Reposición
-            let estado      = item.querySelector("select").value;
-            let observaciones = item.querySelector(".observaciones").value;
-    
-            data.push({
-                cantidad: parseInt(cantidad),
-                producto: producto,
-                id_producto: id_producto,
-                id_motivo: id_motivo,
-                estado: parseInt(estado),
-                observaciones: observaciones
-            });
+      let data = [];
+      const items = document.querySelectorAll("#div_lista_ventas .item-carrito");
+
+      items.forEach(item => {
+        let cantidad = item.querySelector("strong").innerText.trim();
+        let producto = item.querySelector("p").innerText.trim();
+        let id_producto = item.querySelector(".id_oculto").value;
+        let id_motivo = item.querySelector(".id_motivo_oculto").value; // ej: Cambio / Reposición
+        let estado = item.querySelector("select").value;
+        let observaciones = item.querySelector(".observaciones").value;
+        let id_producto_serie = item.querySelector(".id_producto_serie").value;
+        let id_almacen = item.querySelector(".id_almacen").value;
+
+        data.push({
+          cantidad: parseInt(cantidad),
+          producto: producto,
+          id_producto: id_producto,
+          id_motivo: id_motivo,
+          estado: parseInt(estado),
+          observaciones: observaciones,
+          id_producto_serie: id_producto_serie,
+          id_almacen: id_almacen,
         });
+      });
 
       console.log(data);
       //return;
@@ -54,7 +58,7 @@ $(document).ready(function () {
         "ws/service.php?parAccion=guardar_asignacion",
         {
           id_usuario: $("#id_usuario").val(),
-          data:data
+          data: data
         },
         function (response) {
           var obj = JSON.parse(response);
@@ -90,10 +94,12 @@ $(document).ready(function () {
           response(
             $.map(data, function (item) {
               return {
-                label: item.producto,
-                value: item.producto,
+                label: item.producto + " " + item.marca + " " + item.serie,
+                value: item.producto + " " + item.marca + " " + item.serie,
                 id: item.id,
-                producto: item.producto,
+                producto: item.producto + " " + item.marca + " " + item.serie,
+                id_producto_serie: item.id_producto_serie,
+                id_almacen: item.id_almacen,
               };
             })
           );
@@ -103,7 +109,7 @@ $(document).ready(function () {
     select: function (event, ui) {
       $("#add-item").attr(
         "onclick",
-        `anadirItem(${ui.item.id}, '${ui.item.producto}')`
+        `anadirItem(${ui.item.id}, '${ui.item.producto}', '${ui.item.id_producto_serie}', '${ui.item.id_almacen}')`
       );
       $("#cantidad").trigger("focus");
     },
@@ -166,7 +172,7 @@ function lista_colaboradores() {
   });
 }
 
-function anadirItem(id, nombre) {
+function anadirItem(id, nombre, id_producto_serie, id_almacen) {
   console.log($("#producto"));
   console.log(nombre);
   var flag = 0;
@@ -192,6 +198,8 @@ function anadirItem(id, nombre) {
                         <td width="5%" class="text-center">
                             <strong id="cant${id}">${$("#cantidad").val()}</strong>
                             <input type="hidden" class="id_oculto" value="${id}"/>
+                            <input type="hidden" class="id_producto_serie" value="${id_producto_serie}"/>
+                            <input type="hidden" class="id_almacen" value="${id_almacen}"/>
                         </td>
                         <td width="30%">
                             <p style="font-weight: bold; display: block; font-size: 13px; text-align: left;" class="w-100 mb-0">${nombre}</p>

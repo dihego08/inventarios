@@ -28,15 +28,10 @@ function lista_productos() {
         $.each(obj, function (index, val) {
             $("#tabla-productos").find("tbody").append(`<tr>
                 <td>${val.id}</td>
-                <td>${val.codigo}</td>
                 <td><span title="${val.descripcion}">${val.producto}</span></td>
                 <td>${val.categoria}</td>
                 <td>${val.marca}</td>
                 <td>${val.modelo}</td>
-                <td>${val.serie}</td>
-                <td>${$.trim(val.stock_actual)}</td>
-                <td>${$.trim(val.precio_compra)}</td>
-                <td>${$.trim(val.precio_venta)}</td>
                 <td>
                     <span class="btn btn-outline-warning btn-sm d-block mb-1" data-toggle="modal" data-target="#formulario" onclick="editar_producto(${val.id});"><i class="fa fa-edit"></i></span>
                     <span  class="btn btn-outline-danger btn-sm d-block" onclick="eliminar_producto(${val.id});"><i class="fa fa-trash"></i></span>
@@ -67,10 +62,8 @@ function actualizar_producto(id) {
         id_categoria: $("#id_categoria").val(),
         id_marca: $("#id_marca").val(),
         descripcion: $("#descripcion").val(),
-        codigo: $("#codigo").val(),
+        modelo: $("#modelo").val(),
         id: id,
-            modelo: $("#modelo").val(),
-            serie: $("#serie").val(),
     }, function (response) {
         var obj = JSON.parse(response);
         if (obj.Result == "OK") {
@@ -83,11 +76,11 @@ function actualizar_producto(id) {
     });
 }
 function insertar_producto() {
-    if ($("#producto").val() == "" || $("#codigo").val() == "") {
+    if ($("#producto").val() == "") {
         Swal.fire({
             icon: "error",
             title: "Oops...",
-            text: "El campo 'Producto' ó 'Código' no puede ser vacío!",
+            text: "El campo 'Producto' no puede ser vacío!",
         });
     } else {
         $.post("ws/service.php?parAccion=insertar_producto", {
@@ -95,9 +88,7 @@ function insertar_producto() {
             id_categoria: $("#id_categoria").val(),
             id_marca: $("#id_marca").val(),
             descripcion: $("#descripcion").val(),
-            codigo: $("#codigo").val(),
             modelo: $("#modelo").val(),
-            serie: $("#serie").val(),
         }, function (response) {
             var obj = JSON.parse(response);
             if (obj.Result == "OK") {
@@ -111,6 +102,7 @@ function insertar_producto() {
     }
 }
 function nuevo_producto() {
+    limpiar_formulario();
     $("#productoModalLabel").text("Nuevo Producto");
     $("#btn-accion-producto").text("Guardar");
     $("#btn-accion-producto").attr("onclick", "insertar_producto();");
@@ -132,10 +124,8 @@ function editar_producto(id) {
         $("#id_categoria").val(obj.id_categoria);
 
         $("#id_marca").val(obj.id_marca);
-        $("#codigo").val(obj.codigo);
-        $("#descripcion").val(obj.descripcion);
         $("#modelo").val(obj.modelo);
-        $("#serie").val(obj.serie);
+        $("#descripcion").val(obj.descripcion);
     });
 }
 function eliminar_producto(id) {

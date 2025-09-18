@@ -26,4 +26,5 @@ class Asignacion_Detalle
     public $id_estado_asignacion;
     public $id_estado_devolucion;
     public $id_almacen;
+    public $id_producto_serie;
 }
